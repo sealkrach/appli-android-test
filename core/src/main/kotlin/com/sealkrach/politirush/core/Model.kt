@@ -44,10 +44,23 @@ data class Hero(
     val specialCooldown: Float,
 )
 
-/** Archétype de cible : une caricature politique fictive. */
+/**
+ * Rang d'une cible. La résistance, la vitesse et la récompense découlent du rang,
+ * et le rang détermine à partir de quelle vague la cible apparaît.
+ */
+enum class Tier(val label: String, val hp: Int, val speed: Float, val points: Int, val coins: Int, val fromWave: Int, val spawnWeight: Int) {
+    HAUT_FONCTIONNAIRE("Haut fonctionnaire", hp = 1, speed = 0.16f, points = 10, coins = 1, fromWave = 1, spawnWeight = 4),
+    DEPUTE("Député", hp = 2, speed = 0.13f, points = 20, coins = 2, fromWave = 2, spawnWeight = 2),
+    MINISTRE("Ministre", hp = 5, speed = 0.10f, points = 50, coins = 3, fromWave = 4, spawnWeight = 1),
+    CHEF_ETAT("Chef d'État", hp = 60, speed = 0.04f, points = 500, coins = 25, fromWave = 5, spawnWeight = 0),
+    HYPER_INFLUENT("Hyper-influent", hp = 120, speed = 0.035f, points = 1000, coins = 50, fromWave = 15, spawnWeight = 0),
+}
+
+/** Cible : une personnalité en caricature, avec son rang. */
 data class PoliticianType(
     val id: String,
     val name: String,
+    val tier: Tier,
     val hp: Int,
     /** Vitesse de descente (fraction de hauteur par seconde). */
     val speed: Float,
@@ -183,6 +196,7 @@ data class GameState(
     val status: GameStatus = GameStatus.RUNNING,
 ) {
     fun hasEffect(type: BonusType): Boolean = effects.any { it.type == type }
+    val weapon: Weapon get() = Weapon.forFirepower(firepower)
     val specialReady: Boolean get() = specialCooldownRemaining <= 0f && status == GameStatus.RUNNING
 }
 

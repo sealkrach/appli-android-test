@@ -3,88 +3,56 @@ package com.sealkrach.politirush.core
 /**
  * Catalogue des héros et des cibles.
  *
- * Tous les noms sont des pastiches : on reconnaît l'archétype sans utiliser
- * une marque ou une personne réelle. Les inspirations sont documentées dans
- * docs/GAME_DESIGN.md.
+ * Héros : pastiches de personnages de films d'action, noms fictifs.
+ * Cibles : personnalités publiques en caricature, classées par rang réel.
+ * La résistance suit la hiérarchie : haut fonctionnaire < député < ministre,
+ * puis les chefs d'État en boss et les hyper-influents en boss finaux.
+ * Voir docs/GAME_DESIGN.md §3 pour le cadrage juridique.
  */
 object Roster {
 
     val heroes: List<Hero> = listOf(
-        Hero(
-            id = "rambeau",
-            name = "Jean Rambeau",
-            tagline = "Bandeau rouge, mitrailleuse à tomates, jamais de repos.",
-            fireRate = 6f,
-            damage = 1,
-            moveSpeed = 1.2f,
-            special = Special.RAFALE,
-            specialCooldown = 14f,
-        ),
-        Hero(
-            id = "balbo",
-            name = "Rocco Balbo",
-            tagline = "Le boxeur de Philadelphie. Encaisse, encaisse, puis frappe.",
-            fireRate = 3f,
-            damage = 3,
-            moveSpeed = 1.0f,
-            special = Special.UPPERCUT,
-            specialCooldown = 12f,
-        ),
-        Hero(
-            id = "machete",
-            name = "El Machette",
-            tagline = "Il ne texte pas. Il tranche.",
-            fireRate = 4f,
-            damage = 2,
-            moveSpeed = 1.1f,
-            special = Special.LAMES,
-            specialCooldown = 15f,
-        ),
-        Hero(
-            id = "chauve_souris",
-            name = "Le Chevalier Chauve-Souris",
-            tagline = "Milliardaire nocturne, ceinture pleine de gadgets.",
-            fireRate = 4.5f,
-            damage = 1,
-            moveSpeed = 1.3f,
-            special = Special.GADGET,
-            specialCooldown = 16f,
-        ),
-        Hero(
-            id = "papa_particulier",
-            name = "Le Papa Très Particulier",
-            tagline = "Ex-agent. Il vous trouvera. Il vous tomatera.",
-            fireRate = 5f,
-            damage = 2,
-            moveSpeed = 1.1f,
-            special = Special.COMPETENCES_PARTICULIERES,
-            specialCooldown = 15f,
-        ),
-        Hero(
-            id = "transporteur",
-            name = "Le Transporteur Chauve",
-            tagline = "Costume impeccable, règles strictes, livraison garantie.",
-            fireRate = 5f,
-            damage = 1,
-            moveSpeed = 1.4f,
-            special = Special.LIVRAISON,
-            specialCooldown = 18f,
-        ),
+        Hero("rambeau", "Jean Rambeau", "Bandeau rouge, marcel, jamais de repos.", fireRate = 6f, damage = 1, moveSpeed = 1.2f, special = Special.RAFALE, specialCooldown = 14f),
+        Hero("balbo", "Rocco Balbo", "Le boxeur de Philadelphie. Encaisse, puis frappe.", fireRate = 3f, damage = 3, moveSpeed = 1.0f, special = Special.UPPERCUT, specialCooldown = 12f),
+        Hero("machete", "El Machette", "Il ne texte pas. Il tranche.", fireRate = 4f, damage = 2, moveSpeed = 1.1f, special = Special.LAMES, specialCooldown = 15f),
+        Hero("chauve_souris", "Le Chevalier Chauve-Souris", "Milliardaire nocturne, ceinture pleine de gadgets.", fireRate = 4.5f, damage = 1, moveSpeed = 1.3f, special = Special.GADGET, specialCooldown = 16f),
+        Hero("papa_particulier", "Le Papa Très Particulier", "Ex-agent. Il vous trouvera. Il vous tomatera.", fireRate = 5f, damage = 2, moveSpeed = 1.1f, special = Special.COMPETENCES_PARTICULIERES, specialCooldown = 15f),
+        Hero("transporteur", "Le Transporteur Chauve", "Costume impeccable, règles strictes, livraison garantie.", fireRate = 5f, damage = 1, moveSpeed = 1.4f, special = Special.LIVRAISON, specialCooldown = 18f),
     )
 
     fun hero(id: String): Hero = heroes.first { it.id == id }
 
+    private fun tier(id: String, name: String, tier: Tier) =
+        PoliticianType(id, name, tier = tier, hp = tier.hp, speed = tier.speed, points = tier.points, coins = tier.coins)
+
+    /** Cibles courantes. Les rangs 1 et 2 sont des archétypes, le rang 3 des ministres nommés. */
     val politicians: List<PoliticianType> = listOf(
-        PoliticianType("promettologue", "Le Promettologue", hp = 2, speed = 0.12f, points = 10, coins = 1),
-        PoliticianType("girouette", "La Girouette", hp = 1, speed = 0.20f, points = 15, coins = 1),
-        PoliticianType("baron", "Le Baron Local", hp = 4, speed = 0.09f, points = 25, coins = 2),
-        PoliticianType("technocrate", "Le Technocrate", hp = 3, speed = 0.11f, points = 20, coins = 2),
-        PoliticianType("influenceur", "L'Influenceur Populiste", hp = 2, speed = 0.18f, points = 20, coins = 2),
-        PoliticianType("dinosaure", "Le Dinosaure du Sénat", hp = 6, speed = 0.07f, points = 40, coins = 3),
+        tier("prefet", "Le Préfet", Tier.HAUT_FONCTIONNAIRE),
+        tier("inspecteur_finances", "L'Inspecteur des Finances", Tier.HAUT_FONCTIONNAIRE),
+        tier("dir_cabinet", "La Directrice de Cabinet", Tier.HAUT_FONCTIONNAIRE),
+        tier("depute_base", "Le Député de base", Tier.DEPUTE),
+        tier("deputee_marche", "La Députée en marche", Tier.DEPUTE),
+        tier("depute_insoumis", "Le Député insoumis", Tier.DEPUTE),
+        tier("attal", "Gabriel Attal", Tier.MINISTRE),
+        tier("filippetti", "Aurélie Filippetti", Tier.MINISTRE),
+        tier("le_maire", "Bruno Le Maire", Tier.MINISTRE),
+        tier("darmanin", "Gérald Darmanin", Tier.MINISTRE),
     )
 
+    /**
+     * Échelle des boss, dans l'ordre d'apparition (vague 5, 10, 15...) :
+     * d'abord les chefs d'État, puis les hyper-influents. Le dernier se répète.
+     */
     val bosses: List<PoliticianType> = listOf(
-        PoliticianType("candidat_eternel", "Le Candidat Éternel", hp = 60, speed = 0.04f, points = 500, coins = 25, isBoss = true),
-        PoliticianType("ministre_reformes", "Le Ministre des Réformes Indispensables", hp = 90, speed = 0.035f, points = 800, coins = 40, isBoss = true),
+        PoliticianType("macron", "Emmanuel Macron", Tier.CHEF_ETAT, hp = 60, speed = 0.04f, points = 500, coins = 25, isBoss = true),
+        PoliticianType("netanyahou", "Benyamin Netanyahou", Tier.CHEF_ETAT, hp = 80, speed = 0.04f, points = 600, coins = 30, isBoss = true),
+        PoliticianType("trump", "Donald Trump", Tier.HYPER_INFLUENT, hp = 120, speed = 0.035f, points = 1000, coins = 50, isBoss = true),
+        PoliticianType("musk", "Elon Musk", Tier.HYPER_INFLUENT, hp = 150, speed = 0.035f, points = 1200, coins = 60, isBoss = true),
+        PoliticianType("poutine", "Vladimir Poutine", Tier.HYPER_INFLUENT, hp = 160, speed = 0.03f, points = 1300, coins = 60, isBoss = true),
+        PoliticianType("zuckerberg", "Mark Zuckerberg", Tier.HYPER_INFLUENT, hp = 140, speed = 0.04f, points = 1100, coins = 55, isBoss = true),
     )
+
+    /** Boss de la vague donnée (multiple de [GameConfig.BOSS_EVERY_N_WAVES]). */
+    fun bossForWave(wave: Int): PoliticianType =
+        bosses[(wave / GameConfig.BOSS_EVERY_N_WAVES - 1).coerceIn(0, bosses.lastIndex)]
 }

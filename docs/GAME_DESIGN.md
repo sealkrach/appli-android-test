@@ -28,19 +28,25 @@ nombres qui explosent à l'écran. Ce que PolitiRush garde de la recette :
 
 ## 3. Cadrage contenu (important)
 
-Deux garde-fous, décidés dès le départ pour ne pas se faire retirer de Google Play
-et ne pas s'exposer à des problèmes de droit à l'image ou de marques :
-
-1. **Aucune personne réelle.** Les cibles sont des *archétypes* politiques
-   caricaturés, jamais nommés. Les héros sont des *pastiches* de personnages de
-   films : on reconnaît le bandeau rouge ou le boxeur de Philadelphie sans utiliser
-   un nom déposé.
-2. **Aucune violence réaliste.** Les projectiles sont des tomates. Les cibles
-   "éliminées" s'écrasent façon cartoon (splash rouge, étoiles, bruit de ventouse).
-   Pas de sang, pas d'arme réaliste. Classification visée : PEGI 7 / Everyone 10+.
-
-Les inspirations de chaque personnage sont notées ci-dessous pour guider le
-graphiste, mais elles ne doivent apparaître nulle part dans le jeu.
+1. **Héros : pastiches, pas de marques.** Les héros sont inspirés de personnages
+   de films d'action, mais portent des noms fictifs et des traits reconnaissables
+   (bandeau rouge, boxeur de Philadelphie...). Aucun nom déposé n'apparaît.
+2. **Cibles : personnalités publiques en caricature.** Choix assumé du projet :
+   les ministres et les boss sont des personnes réelles, dessinées en caricature
+   reconnaissable (coiffure, costume, accessoire signature). La caricature de
+   personnalités publiques relève de la satire, mais elle expose à deux risques
+   à garder en tête avant publication : le droit à l'image (en France, la
+   satire de personnalités publiques est largement protégée mais pas illimitée)
+   et la politique Google Play sur le contenu visant des personnes réelles.
+   Le catalogue est purement des données (`Roster.kt`) : remplacer un nom réel
+   par un archétype est une ligne à changer.
+3. **Aucune violence réaliste.** Les projectiles sont des tomates, quelle que soit
+   l'arme (main, lance-pierre, canon, tank). Les cibles "éliminées" s'écrasent
+   façon cartoon (splash rouge, étoiles, bruit de ventouse). Pas de sang.
+   Classification visée : PEGI 12 (satire politique).
+4. **Pas de cliché complotiste.** Le rang « hyper-influent » regroupe des
+   dirigeants et des patrons de la tech dont l'influence mondiale est factuelle.
+   Il ne doit pas servir à mettre en scène des « marionnettistes de l'ombre ».
 
 ## 4. Les héros
 
@@ -60,25 +66,53 @@ chien, l'archéologue au fouet. Toujours en pastiche.
 Le premier héros est débloqué d'office ; les autres après 3 parties (placeholder :
 à terme, déblocage par pièces ou par défi).
 
-## 5. Les cibles
+### Les armes suivent la puissance
 
-| Nom | PV | Vitesse | Points | Pièces | Gimmick prévu |
-|---|---|---|---|---|---|
-| Le Promettologue | 2 | lente | 10 | 1 | Bulle "promis juré" qui éclate |
-| La Girouette | 1 | rapide | 15 | 1 | Change de couloir en zigzag |
-| Le Baron Local | 4 | lente | 25 | 2 | Écharpe tricolore, se fend en deux |
-| Le Technocrate | 3 | moyenne | 20 | 2 | Bouclier "rapport de 400 pages" (1 salve absorbée) |
-| L'Influenceur Populiste | 2 | rapide | 20 | 2 | Se duplique à la mort (deux mini-clones) |
-| Le Dinosaure du Sénat | 6 | très lente | 40 | 3 | Tank, ralentit encore plus quand il est touché |
+Le multiplicateur de tir détermine l'arme affichée. La mécanique ne change pas
+(N tomates par salve), mais le joueur voit son équipement grossir :
 
-Boss (toutes les 5 vagues) :
+| Multiplicateur | Arme | Rendu |
+|---|---|---|
+| x1 à x4 | À la main | Le héros court et lance à la main |
+| x5 à x12 | Lance-pierre | Lance-pierre en Y tenu devant |
+| x13 à x32 | Canon à tomates | Canon sur roues à côté du héros |
+| x33 à x64 | Tank à tomates | Le héros dépasse de la tourelle |
 
-- **Le Candidat Éternel** (60 PV) : revient au centre après chaque coup, lâche une
-  pluie de tracts qui masquent l'écran.
-- **Le Ministre des Réformes Indispensables** (90 PV) : invoque des portes ÷2 devant lui.
+Le changement d'arme est annoncé en gros à l'écran (« CANON À TOMATES ! »),
+c'est un des moments de satisfaction de la partie.
 
-Les gimmicks ne sont pas encore codés : le moteur gère PV, vitesse, points, pièces et
-boss. Voir la roadmap.
+### Animation
+
+Les personnages sont des humanoïdes dessinés (tête, buste, bras, jambes) avec un
+cycle de course : jambes et bras en balancier, léger rebond. Le héros court quand
+le joueur bouge, les cibles courent toujours vers lui. Voir `drawPerson` dans le
+prototype web pour la référence du cycle.
+
+## 5. Les cibles : la résistance suit le rang réel
+
+Principe : plus la personne est haut placée, plus elle encaisse. Deux ministres
+ont la même résistance quel que soit le bord politique.
+
+| Rang | PV | Vitesse | Points | Pièces | Apparaît dès | Exemples |
+|---|---|---|---|---|---|---|
+| Haut fonctionnaire | 1 | rapide | 10 | 1 | vague 1 | Le Préfet, L'Inspecteur des Finances, La Directrice de Cabinet |
+| Député | 2 | moyenne | 20 | 2 | vague 2 | Le Député de base, La Députée en marche, Le Député insoumis |
+| Ministre | 5 | lente | 50 | 3 | vague 4 | Gabriel Attal, Aurélie Filippetti, Bruno Le Maire, Gérald Darmanin |
+| Chef d'État (boss) | 60 à 80 | très lente | 500 à 600 | 25 à 30 | vagues 5 et 10 | Emmanuel Macron, Benyamin Netanyahou |
+| Hyper-influent (boss final) | 120 à 160 | très lente | 1000 à 1300 | 50 à 60 | vague 15 et au-delà | Donald Trump, Elon Musk, Vladimir Poutine, Mark Zuckerberg |
+
+Les rangs bas restent majoritaires même dans les vagues avancées (poids
+d'apparition 4 / 2 / 1), les ministres sont des moments de tension, les boss
+des événements. Toutes les cibles gagnent 1 PV toutes les 3 vagues.
+
+Traits de caricature à produire (référence dans le prototype web, objet `look`) :
+coiffure (courte, longue, carré, houppe, clairsemée, chauve), teint, costume,
+cravate, lunettes, moustache, écharpe tricolore pour les élus, casquette rouge,
+t-shirt sous la veste pour les patrons de la tech.
+
+Gimmicks prévus (pas encore codés) : bouclier « rapport de 400 pages » pour les
+hauts fonctionnaires, zigzag pour certains députés, pluie de tracts pour les chefs
+d'État, portes ÷2 invoquées par les hyper-influents.
 
 ## 6. Les portes
 
@@ -121,11 +155,11 @@ boss. Voir la roadmap.
 
 - Cartoon plat, contours épais, palette : rouge tomate `#E63946`, orange `#F4A261`,
   vert d'eau `#2A9D8F`, fond nuit `#1B1B2F`.
-- Cibles : têtes surdimensionnées, costume et un accessoire signature (écharpe,
-  rapport, smartphone, fossile).
+- Personnages : humanoïdes à grosse tête, corps court, cycle de course à 4
+  images. Cibles reconnaissables par coiffure, costume et accessoire signature.
 - Sons : ventouse, splash, "ding" de porte, foule qui hue en boucle.
-- Le rendu actuel (cercles + texte) est un placeholder pensé pour être remplacé
-  sprite par sprite sans toucher au moteur.
+- Le rendu actuel (formes dessinées + texte) est un placeholder pensé pour être
+  remplacé sprite par sprite sans toucher au moteur.
 
 ## 11. Monétisation (plus tard, pas dans le prototype)
 

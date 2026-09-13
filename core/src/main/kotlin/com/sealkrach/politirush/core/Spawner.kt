@@ -39,7 +39,7 @@ open class Spawner(seed: Long) {
         val isBossWave = wave % GameConfig.BOSS_EVERY_N_WAVES == 0
         if (isBossWave && waveProgress > 0.3f && bossSpawnedForWave != wave) {
             bossSpawnedForWave = wave
-            val boss = Roster.bosses[(wave / GameConfig.BOSS_EVERY_N_WAVES - 1) % Roster.bosses.size]
+            val boss = Roster.bossForWave(wave)
             enemies += Enemy(nextId(), boss, 0.5f, 1.1f, boss.hp + wave * 5)
         }
 
@@ -48,10 +48,13 @@ open class Spawner(seed: Long) {
         while (spawnTimer <= 0f) {
             spawnTimer += interval
             if (enemiesAlive + enemies.size < 40) {
-                val pool = Roster.politicians.take((2 + wave).coerceAtMost(Roster.politicians.size))
+                // Les rangs élevés arrivent avec les vagues, les petits rangs restent majoritaires.
+                val pool = Roster.politicians
+                    .filter { wave >= it.tier.fromWave }
+                    .flatMap { t -> List(t.tier.spawnWeight) { t } }
                 val type = pool.random(random)
-                // Les vagues avancées ont des cibles plus résistantes.
-                val hp = type.hp + (wave - 1) / 2
+                // Les vagues avancées durcissent légèrement toutes les cibles.
+                val hp = type.hp + (wave - 1) / 3
                 enemies += Enemy(nextId(), type, random.nextFloat() * 0.9f + 0.05f, 1.05f, hp)
             }
         }

@@ -114,7 +114,7 @@ private fun Hud(state: GameState, events: List<GameEvent>, onSpecial: () -> Unit
         val active = state.effects.joinToString("  ") { "${it.type.label} ${it.remaining.toInt() + 1}s" }
         if (active.isNotEmpty()) Text(active, color = Color.LightGray, fontSize = 12.sp)
         events.filterIsInstance<GameEvent.GatePassed>().lastOrNull()?.let {
-            Text("${it.op.label} → tir x${it.newFirepower}", color = if (it.op.isGood) Color.Green else Color.Red, fontWeight = FontWeight.Bold)
+            Text("${it.op.label} → tir x${it.newFirepower} · ${state.weapon.label}", color = if (it.op.isGood) Color.Green else Color.Red, fontWeight = FontWeight.Bold)
         }
         Box(Modifier.weight(1f))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.End) {
@@ -176,7 +176,8 @@ private fun DrawScope.drawGame(s: GameState) {
         val hpFrac = e.hp.toFloat() / (e.type.hp + s.wave * 5).coerceAtLeast(1)
         drawRect(Color.DarkGray, Offset(c.x - r, c.y - r - 14f), Size(2 * r, 8f))
         drawRect(gateBad, Offset(c.x - r, c.y - r - 14f), Size(2 * r * hpFrac.coerceIn(0f, 1f), 8f))
-        if (e.type.isBoss) drawText(e.type.name, c.x, c.y - r - 24f, 30f, Color.White)
+        drawText(e.type.name, c.x, c.y - r - 24f, if (e.type.isBoss) 30f else 22f, Color.White)
+        if (e.type.isBoss) drawText(e.type.tier.label.uppercase(), c.x, c.y - r - 52f, 22f, heroColor)
     }
 
     // Projectiles.
@@ -188,6 +189,7 @@ private fun DrawScope.drawGame(s: GameState) {
     val hc = Offset(px(s.heroX), py(GameConfig.HERO_Y))
     drawCircle(heroColor, radius = w * GameConfig.HERO_RADIUS, center = hc)
     drawText("x${s.firepower}", hc.x, hc.y + w * 0.1f, 44f, Color.White)
+    drawText(s.weapon.label.uppercase(), hc.x, hc.y + w * 0.13f, 24f, heroColor)
 }
 
 private fun DrawScope.drawText(text: String, x: Float, y: Float, sizePx: Float, color: Color) {

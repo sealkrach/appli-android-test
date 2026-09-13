@@ -5,7 +5,10 @@
 - [x] Projet Gradle en deux modules : `core` (Kotlin pur, testé) et `app` (Android, Compose).
 - [x] Moteur : portes et multiplicateurs, tir automatique, cibles, boss, bonus, combo,
   pièces, spéciaux de héros, fin de partie. 18 tests unitaires.
-- [x] Catalogue : 6 héros pastiches, 6 cibles, 2 boss.
+- [x] Catalogue : 6 héros pastiches, cibles classées par rang réel (haut fonctionnaire,
+  député, ministre), boss chefs d'État puis hyper-influents.
+- [x] Armes selon la puissance : main, lance-pierre, canon, tank.
+- [x] Prototype web jouable (personnages animés en course) pour valider le feeling.
 - [x] Méta-progression : boutique d'améliorations, sauvegarde locale.
 - [x] Écrans : accueil / choix du héros, jeu, fin de partie, boutique.
 - [x] CI GitHub Actions sur le module `core`.
@@ -20,7 +23,9 @@
 
 ## Étape 2 — Contenu
 
-- [ ] Sprites des héros et des cibles (voir `docs/GAME_DESIGN.md` §10).
+- [ ] Sprites des héros, des armes et des cibles (voir `docs/GAME_DESIGN.md` §4, §5, §10).
+- [ ] Porter le rendu humanoïde du prototype web (`drawPerson`) en Compose Canvas.
+- [ ] Vérification juridique des caricatures avant publication (§3 du design doc).
 - [ ] Gimmicks des cibles (zigzag, bouclier, clone à la mort, tank).
 - [ ] Patterns des boss.
 - [ ] Déblocage des héros par pièces.

@@ -1,8 +1,11 @@
 # PolitiRush
 
 Jeu mobile Android hyper-casual et satirique : un pastiche de héros de film d'action
-arrose de tomates des caricatures politiques fictives, en franchissant des portes
-qui multiplient ses tirs (x2, +5, x3...) et en ramassant des bonus.
+arrose de tomates des caricatures de personnalités politiques, en franchissant des
+portes qui multiplient ses tirs (x2, +5, x3...) et en ramassant des bonus. L'arme
+grossit avec la puissance (main, lance-pierre, canon, tank) et la résistance des
+cibles suit leur rang réel (haut fonctionnaire, député, ministre, chef d'État,
+hyper-influent).
 
 - Conception complète : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md)
 - Plan de travail : [docs/ROADMAP.md](docs/ROADMAP.md)
@@ -37,6 +40,7 @@ Studio peut demander quelques corrections (voir la roadmap, étape 1).
 
 ## Cadrage contenu
 
-Aucune personne réelle et aucun nom déposé n'apparaît dans le jeu : cibles et héros
-sont des archétypes et des pastiches, les projectiles sont des tomates. Le détail est
-dans le document de conception, section 3.
+Les héros sont des pastiches sans nom déposé. Les ministres et les boss sont des
+personnalités publiques en caricature, choix assumé qui demande une vérification
+juridique avant publication. Les projectiles sont toujours des tomates. Le détail
+est dans le document de conception, section 3.
