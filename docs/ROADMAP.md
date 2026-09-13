@@ -33,8 +33,15 @@
 ## Étape 2 — Contenu
 
 - [ ] Sprites des héros, des armes et des cibles (voir `docs/GAME_DESIGN.md` §4, §5, §10).
-- [ ] Créer le projet Unity et porter `core` en C# avec les mêmes tests.
-- [ ] Reconstruire la scène du prototype 3D dans Unity (route, portes, tomates, particules, caméra).
+- [x] Projet Unity créé (`unity/`) : moteur `core` porté en C# avec ses 30 tests NUnit,
+  vérifiés en .NET 8 hors Unity (`unity/Tools/CoreCheck`).
+- [x] Scripts de scène Unity : contrôleur à pas fixe, synchronisation état → objets,
+  personnages en primitives, armes, portes, tomates, pièces, HUD, entrée tactile, caméra.
+- [x] Outil « PolitiRush > Construire la scène de jeu » pour obtenir une scène jouable en un clic.
+- [ ] Ouvrir dans Unity 2022.3 LTS, lancer, corriger les éventuelles erreurs de compilation
+  des scripts Runtime et Editor (non compilés ici : il faut l'éditeur Unity).
+- [ ] Basculer sur URP, Shader Graph toon, bloom et vignette.
+- [ ] Menu niveau / héros et boutique dans Unity.
 - [ ] Produire les personnages en Rive (machine à états run / hit / frozen / ko)
   à partir des traits du design doc.
 - [ ] Vérification juridique des caricatures avant publication (§3 du design doc).

@@ -1,0 +1,14 @@
+{
+    "name": "PolitiRush.Runtime",
+    "rootNamespace": "PolitiRush.Runtime",
+    "references": [ "PolitiRush.Core" ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

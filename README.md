@@ -16,8 +16,11 @@ hyper-influent).
 
 ```
 core/   Moteur de jeu en Kotlin pur (aucune dépendance Android), testé avec JUnit 5.
-app/    Application Android (Jetpack Compose) : écrans, rendu Canvas, sauvegarde.
-docs/   Conception et roadmap.
+        Spécification de référence des règles.
+unity/  Projet Unity (cible de publication) : moteur porté en C# avec ses tests,
+        scripts de scène, outil de construction de scène. Voir unity/README.md.
+app/    Application Android Compose (premier prototype, conservée pour référence).
+docs/   Conception, roadmap, décisions d'architecture, maquettes web jouables.
 ```
 
 Le moteur est un pas de simulation pur : `GameEngine.step(dt, input)` transforme un
