@@ -11,3 +11,24 @@ captures/
 .cxx/
 # OS
 .DS_Store
+
+# Unity (projet à la racine : Assets/, Packages/, ProjectSettings/)
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+*.csproj
+*.sln
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+.vs/
+# Vérification du moteur C# hors Unity
+tools/CoreCheck/bin/
+tools/CoreCheck/obj/

@@ -17,8 +17,11 @@ hyper-influent).
 ```
 core/   Moteur de jeu en Kotlin pur (aucune dépendance Android), testé avec JUnit 5.
         Spécification de référence des règles.
-unity/  Projet Unity (cible de publication) : moteur porté en C# avec ses tests,
-        scripts de scène, outil de construction de scène. Voir unity/README.md.
+Assets/, Packages/, ProjectSettings/
+        Projet Unity (cible de publication), à la racine pour qu'Unity Hub l'ouvre depuis
+        GitHub : moteur porté en C# avec ses tests, scripts de scène, outil de construction
+        de scène. Voir docs/UNITY.md.
+tools/CoreCheck/  Vérification du moteur C# sans Unity (dotnet run).
 app/    Application Android Compose (premier prototype, conservée pour référence).
 docs/   Conception, roadmap, décisions d'architecture, maquettes web jouables.
 ```

@@ -1,12 +1,13 @@
 # PolitiRush — projet Unity
 
-Port du jeu vers Unity, conformément à `docs/ADR-001-moteur-graphique.md`.
+Port du jeu vers Unity, conformément à `ADR-001-moteur-graphique.md`. Le projet Unity est
+à la racine du dépôt (`Assets/`, `Packages/`, `ProjectSettings/`), ce qui permet à Unity Hub
+de l'ouvrir directement depuis GitHub (« Add project from repository »).
 
 ## Ce qui est là
 
 ```
-unity/
-  Assets/PolitiRush/
+Assets/PolitiRush/
     Core/       Moteur de règles en C# pur, traduit ligne à ligne du module Kotlin `core`.
                 Aucune dépendance Unity (asmdef avec noEngineReferences). 30 tests NUnit.
     Tests/Editor/  Les tests NUnit (Unity Test Framework, mode Edit).
@@ -16,16 +17,18 @@ unity/
                 secousse de caméra, sauvegarde PlayerPrefs, enchaînement des parties.
     Editor/     SceneBuilder : menu « PolitiRush > Construire la scène de jeu ».
     Shaders/    Toon.shader : trois paliers + contour par coque inversée (pipeline intégré).
-  Packages/manifest.json   Paquets requis (URP, Test Framework, TextMeshPro, uGUI).
-  ProjectSettings/ProjectVersion.txt   Unity 2022.3 LTS.
-  Tools/CoreCheck/   Vérification du moteur hors Unity : `dotnet run` compile Core + Tests.
+Packages/manifest.json   Paquets requis (URP, Test Framework, TextMeshPro, uGUI).
+ProjectSettings/ProjectVersion.txt   Unity 2022.3 LTS.
+tools/CoreCheck/   Vérification du moteur hors Unity : `dotnet run` compile Core + Tests.
 ```
 
 ## Première ouverture
 
 1. Installer Unity Hub, puis Unity **2022.3 LTS** avec le module *Android Build Support*
    (SDK, NDK et OpenJDK inclus).
-2. Unity Hub > *Add project from disk* > choisir le dossier `unity/`.
+2. Unity Hub > *Add* > *Add project from repository* > GitHub > `sealkrach/appli-android-test`,
+   branche `claude/exciting-ptolemy-st4o2p` (ou `main` une fois fusionnée). Ou bien
+   *Add project from disk* en pointant sur la racine du dépôt cloné.
 3. À l'ouverture, Unity importe les paquets du manifeste (une à deux minutes).
 4. Menu **PolitiRush > Construire la scène de jeu**. La scène est créée dans
    `Assets/PolitiRush/Scenes/Game.unity` et s'ouvre.
@@ -59,7 +62,7 @@ Settings, icône, orientation portrait verrouillée, signature.
 ## Vérifier le moteur sans Unity
 
 ```
-cd unity/Tools/CoreCheck && dotnet run
+cd tools/CoreCheck && dotnet run
 ```
 
 Compile `Assets/PolitiRush/Core` et `Assets/PolitiRush/Tests/Editor` avec un mini-shim

@@ -27,4 +27,4 @@ jobs:
         with:
           dotnet-version: "8.0.x"
       # Compile le moteur C# du projet Unity et exécute ses tests sans Unity.
-      - run: dotnet run --project unity/Tools/CoreCheck
+      - run: dotnet run --project tools/CoreCheck
