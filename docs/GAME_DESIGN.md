@@ -114,6 +114,28 @@ Gimmicks prévus (pas encore codés) : bouclier « rapport de 400 pages » pour 
 hauts fonctionnaires, zigzag pour certains députés, pluie de tracts pour les chefs
 d'État, portes ÷2 invoquées par les hyper-influents.
 
+## 5 bis. Les niveaux à thème
+
+Chaque niveau garde les mêmes règles (portes, armes, vagues, boss toutes les
+5 vagues) et change le décor, les cibles, l'échelle des boss et les noms des bonus.
+Le rang reste la clé de la résistance : un ministre vaut 5 PV dans tous les niveaux.
+
+| Niveau | Décor | Cibles de rang 1 et 2 | Ministres | Boss | Bonus renommés |
+|---|---|---|---|---|---|
+| Le Palais | Rue de nuit, lampadaires | Préfet, Inspecteur des Finances, Directrice de Cabinet, députés archétypes | Attal, Filippetti, Le Maire, Darmanin | Macron, Netanyahou, puis Trump, Musk, Poutine, Zuckerberg | aucun |
+| Carburant à 2 € | Coucher de soleil, pompes à essence, gilets jaunes sur le trottoir | Inspecteur des taxes, Directeur de la DGEC, Conseillère budgétaire, Député pro-taxe carbone, Députée du malus | Le Maire, Pannier-Runacher, Béchu, Borne | Macron, Pouyanné (TotalEnergies), Musk, Trump | Ristourne, Blocage de raffinerie, Bidon géant, Gilets jaunes, Chèque carburant |
+| L'aéroport bradé | Nuit bleue, tarmac, avions et tours de contrôle | Haut fonctionnaire de Bercy, Expert des participations, Directrice des concessions, Député pro-privatisation, Rapporteure du budget | Le Maire, Borne, Djebbari | Macron, Huillard (Vinci), Musk, Trump | Enquête parlementaire, Grève des contrôleurs, Tomate long-courrier, Référendum, Duty free |
+
+Règle éditoriale pour les futurs niveaux : un thème est un **sujet de politique
+publique** (fiscalité, privatisation, réforme, énergie...). Les affaires judiciaires
+ou les scandales privés impliquant des personnes nommées sont exclus : associer une
+personne réelle à des faits qu'aucune décision de justice n'établit relève de la
+diffamation, pas de la satire. Idées compatibles : la réforme des retraites, le
+49.3, la taxe sur les super-profits, les Jeux olympiques, le nucléaire, la 5G.
+
+Les niveaux sont des données (`core/.../Level.kt`, objet `Levels`) : ajouter un
+niveau ne demande aucun changement de règle.
+
 ## 6. Les portes
 
 - Une paire toutes les 6 secondes, une à gauche, une à droite.

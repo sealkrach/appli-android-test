@@ -16,9 +16,10 @@ import kotlin.math.sign
 class GameEngine(
     initialState: GameState,
     seed: Long = 42L,
-    private val spawner: Spawner = Spawner(seed),
+    val level: Level = Levels.palais,
+    private val spawner: Spawner = Spawner(seed, level),
 ) {
-    constructor(hero: Hero, seed: Long = 42L) : this(GameState(hero = hero), seed)
+    constructor(hero: Hero, seed: Long = 42L, level: Level = Levels.palais) : this(GameState(hero = hero), seed, level)
 
     var state: GameState = initialState
         private set

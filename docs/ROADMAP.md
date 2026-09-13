@@ -11,7 +11,10 @@
 - [x] Prototype web jouable (personnages animés en course) pour valider le feeling.
 - [x] Rendu cartoon vectoriel dans le prototype : contours, cel shading, squash and
   stretch, expressions, éclaboussures, onomatopées, secousses, décor en parallaxe.
-- [x] ADR-001 : libGDX pour la scène, Rive pour les personnages.
+- [x] ADR-001 : libGDX pour la scène, Rive pour les personnages, puis révision 3D : Unity
+  (Godot 4 en alternative), `core` Kotlin comme spécification et banc de tests.
+- [x] Maquette 3D jouable (three.js, toon, ombres) : `docs/prototype-web-3d.html`.
+- [x] Trois niveaux à thème : Le Palais, Carburant à 2 €, L'aéroport bradé.
 - [x] Méta-progression : boutique d'améliorations, sauvegarde locale.
 - [x] Écrans : accueil / choix du héros, jeu, fin de partie, boutique.
 - [x] CI GitHub Actions sur le module `core`.
@@ -27,8 +30,8 @@
 ## Étape 2 — Contenu
 
 - [ ] Sprites des héros, des armes et des cibles (voir `docs/GAME_DESIGN.md` §4, §5, §10).
-- [ ] Créer les modules `gdx-core` / `gdx-desktop` / `gdx-android` (ADR-001) et y
-  porter la scène du prototype web (piste, portes, tomates, particules, caméra).
+- [ ] Créer le projet Unity et porter `core` en C# avec les mêmes tests.
+- [ ] Reconstruire la scène du prototype 3D dans Unity (route, portes, tomates, particules, caméra).
 - [ ] Produire les personnages en Rive (machine à états run / hit / frozen / ko)
   à partir des traits du design doc.
 - [ ] Vérification juridique des caricatures avant publication (§3 du design doc).

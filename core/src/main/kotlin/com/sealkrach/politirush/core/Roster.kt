@@ -52,7 +52,6 @@ object Roster {
         PoliticianType("zuckerberg", "Mark Zuckerberg", Tier.HYPER_INFLUENT, hp = 140, speed = 0.04f, points = 1100, coins = 55, isBoss = true),
     )
 
-    /** Boss de la vague donnée (multiple de [GameConfig.BOSS_EVERY_N_WAVES]). */
-    fun bossForWave(wave: Int): PoliticianType =
-        bosses[(wave / GameConfig.BOSS_EVERY_N_WAVES - 1).coerceIn(0, bosses.lastIndex)]
+    /** Boss de la vague donnée dans le niveau par défaut. Voir [Level.bossForWave]. */
+    fun bossForWave(wave: Int): PoliticianType = Levels.palais.bossForWave(wave)
 }

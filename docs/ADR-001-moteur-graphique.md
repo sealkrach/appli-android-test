@@ -46,3 +46,27 @@ secours et écran de menus, puis remplacé par le lanceur libGDX Android.
   (tête ≈ 1,3 unité, buste 2 unités, contour ≈ 0,16 unité), mêmes effets.
 - Les tests du moteur restent la source de vérité des règles ; le rendu ne
   contient aucune logique de jeu.
+
+
+## Révision : passage à la 3D
+
+Le prototype 3D (`docs/prototype-web-3d.html`, three.js, ombrage toon, contours
+par coque inversée, ombres portées, décor en perspective) a été validé comme
+direction visuelle : personnages en volume à grosse tête, route en fuite, caméra
+derrière le héros, armes en volume (lance-pierre, canon, tank).
+
+Conséquence sur le choix du moteur Android :
+
+| Option 3D | Pour | Contre |
+|---|---|---|
+| **Unity** | Standard du genre hyper-casual (les jeux imités sont faits avec), toon shader et outline prêts, SDK pub et analytics intégrés, énorme base de tutoriels | C#, licence au-delà du seuil de revenus, réécriture du moteur `core` |
+| **Godot 4** | Gratuit et libre, 3D correcte, export Android, shaders toon simples | Moins d'outillage pub/analytics, communauté hyper-casual plus petite, réécriture en GDScript ou C# |
+| **libGDX 3D** | Kotlin, `core` réutilisé tel quel | 3D rudimentaire, pas d'éditeur de scène, tout à la main |
+| **three.js dans une WebView** | Le prototype tourne déjà | Performance et intégration Play Store médiocres, pas sérieux pour publier |
+
+**Décision révisée : Unity**, avec Godot 4 comme alternative gratuite si la
+licence pose problème. Le module Kotlin `core` devient la spécification de
+référence et le banc de tests des règles ; il est porté en C# fonction par
+fonction (le code est volontairement sans dépendance et facile à traduire). Le
+prototype three.js reste la référence de style : proportions, palette, caméra,
+effets.

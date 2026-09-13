@@ -7,7 +7,7 @@ import kotlin.random.Random
  * pour une graine donnée, ce qui rend le moteur testable et permet des
  * "défis du jour" partagés (même graine pour tout le monde).
  */
-open class Spawner(seed: Long) {
+open class Spawner(seed: Long, private val level: Level = Levels.palais) {
     private val random = Random(seed)
     private var nextId = 1
 
@@ -39,7 +39,7 @@ open class Spawner(seed: Long) {
         val isBossWave = wave % GameConfig.BOSS_EVERY_N_WAVES == 0
         if (isBossWave && waveProgress > 0.3f && bossSpawnedForWave != wave) {
             bossSpawnedForWave = wave
-            val boss = Roster.bossForWave(wave)
+            val boss = level.bossForWave(wave)
             enemies += Enemy(nextId(), boss, 0.5f, 1.1f, boss.hp + wave * 5)
         }
 
@@ -49,7 +49,7 @@ open class Spawner(seed: Long) {
             spawnTimer += interval
             if (enemiesAlive + enemies.size < 40) {
                 // Les rangs élevés arrivent avec les vagues, les petits rangs restent majoritaires.
-                val pool = Roster.politicians
+                val pool = level.politicians
                     .filter { wave >= it.tier.fromWave }
                     .flatMap { t -> List(t.tier.spawnWeight) { t } }
                 val type = pool.random(random)

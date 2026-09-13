@@ -9,6 +9,8 @@ hyper-influent).
 
 - Conception complète : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md)
 - Plan de travail : [docs/ROADMAP.md](docs/ROADMAP.md)
+- Moteur graphique : [docs/ADR-001-moteur-graphique.md](docs/ADR-001-moteur-graphique.md)
+- Maquettes jouables : `docs/prototype-web.html` (2D cartoon) et `docs/prototype-web-3d.html` (3D toon, trois niveaux)
 
 ## Structure
 
