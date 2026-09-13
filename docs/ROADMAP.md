@@ -9,6 +9,9 @@
   député, ministre), boss chefs d'État puis hyper-influents.
 - [x] Armes selon la puissance : main, lance-pierre, canon, tank.
 - [x] Prototype web jouable (personnages animés en course) pour valider le feeling.
+- [x] Rendu cartoon vectoriel dans le prototype : contours, cel shading, squash and
+  stretch, expressions, éclaboussures, onomatopées, secousses, décor en parallaxe.
+- [x] ADR-001 : libGDX pour la scène, Rive pour les personnages.
 - [x] Méta-progression : boutique d'améliorations, sauvegarde locale.
 - [x] Écrans : accueil / choix du héros, jeu, fin de partie, boutique.
 - [x] CI GitHub Actions sur le module `core`.
@@ -24,7 +27,10 @@
 ## Étape 2 — Contenu
 
 - [ ] Sprites des héros, des armes et des cibles (voir `docs/GAME_DESIGN.md` §4, §5, §10).
-- [ ] Porter le rendu humanoïde du prototype web (`drawPerson`) en Compose Canvas.
+- [ ] Créer les modules `gdx-core` / `gdx-desktop` / `gdx-android` (ADR-001) et y
+  porter la scène du prototype web (piste, portes, tomates, particules, caméra).
+- [ ] Produire les personnages en Rive (machine à états run / hit / frozen / ko)
+  à partir des traits du design doc.
 - [ ] Vérification juridique des caricatures avant publication (§3 du design doc).
 - [ ] Gimmicks des cibles (zigzag, bouclier, clone à la mort, tank).
 - [ ] Patterns des boss.

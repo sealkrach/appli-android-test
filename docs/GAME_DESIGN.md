@@ -151,7 +151,22 @@ d'État, portes ÷2 invoquées par les hyper-influents.
 6. Plus tard : défi du jour (graine partagée : `Spawner(seed)` est déterministe),
    classement, héros à débloquer, skins de tomates.
 
-## 10. Direction artistique (à produire)
+## 10. Direction artistique
+
+Référence jouable : `docs/prototype-web.html` (objet `Cartoon`, fonction `drawPerson`).
+Moteur retenu pour Android : voir `ADR-001-moteur-graphique.md`.
+
+Règles du style cartoon :
+
+- Contour encre `#17122b` sous chaque forme, épaisseur ≈ 0,16 unité de personnage.
+- Ombrage cel : ombre plate sur le tiers inférieur de chaque forme, reflet ovale en haut à gauche.
+- Proportions : tête 1,3 unité de rayon, buste 2 unités de large, membres arrondis, mains en moufles.
+- Squash and stretch sur le cycle de course, écrasement à 85 % et inclinaison quand une cible encaisse.
+- Yeux blancs à grosses pupilles, sourcils froncés pour les cibles, yeux en croix quand elles encaissent.
+- Éclaboussures : blobs rouges projetés + coulures qui tombent + onomatopée (SPLAT, PAF, SPLATCH pour un boss).
+- Secousse d'écran quand le héros est touché ou qu'un boss tombe.
+- Portes en panneaux BD arrondis avec ombre portée et texte à contour.
+
 
 - Cartoon plat, contours épais, palette : rouge tomate `#E63946`, orange `#F4A261`,
   vert d'eau `#2A9D8F`, fond nuit `#1B1B2F`.
