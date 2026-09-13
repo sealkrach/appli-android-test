@@ -66,7 +66,7 @@ namespace PolitiRush.Runtime
                     }
                     CameraShake.Instance?.Shake(k.Type.IsBoss ? 0.5f : 0f);
                     break;
-                case GameEvent.HeroHurt: CameraShake.Instance?.Shake(0.4f); break;
+                case GameEvent.HeroHurt _: CameraShake.Instance?.Shake(0.4f); break;
                 case GameEvent.GatePassed g: hero?.OnGatePassed(g); break;
             }
         }

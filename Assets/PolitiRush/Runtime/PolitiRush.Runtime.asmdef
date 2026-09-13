@@ -1,7 +1,10 @@
 {
     "name": "PolitiRush.Runtime",
     "rootNamespace": "PolitiRush.Runtime",
-    "references": [ "PolitiRush.Core" ],
+    "references": [
+        "PolitiRush.Core",
+        "UnityEngine.UI"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

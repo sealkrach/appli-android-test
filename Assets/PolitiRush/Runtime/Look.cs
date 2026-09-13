@@ -9,10 +9,10 @@ namespace PolitiRush.Runtime
     /// </summary>
     public sealed class Look
     {
-        public Color Skin = new Color32(0xF0, 0xD0, 0xB0, 255);
-        public Color? Hair = new Color32(0x3b, 0x2a, 0x1a, 255);
+        public Color Skin = C(0xF0D0B0);
+        public Color? Hair = C(0x3b2a1a);
         public string Style = "short"; // short, long, bob, quiff, thin, cowl, bald
-        public Color Suit = new Color32(0x44, 0x44, 0x44, 255);
+        public Color Suit = C(0x444444);
         public Color? Shirt, Tie, Band, Gloves, Cape;
         public bool Scarf, Glasses, Mustache, Cap, RedCap, Tee;
 

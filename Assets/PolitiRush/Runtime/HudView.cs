@@ -35,8 +35,8 @@ namespace PolitiRush.Runtime
             var s = Controller?.State; if (s == null) return;
             if (Wave) Wave.text = "Vague " + s.Wave;
             if (Score) Score.text = s.Score.ToString();
-            if (Coins) Coins.text = "🪙 " + s.Coins;
-            if (Lives) Lives.text = new string('❤', s.HeroHp);
+            if (Coins) Coins.text = "Pièces : " + s.Coins;
+            if (Lives) Lives.text = "Vies : " + s.HeroHp;
             if (Combo) Combo.text = s.Combo >= 3 ? "COMBO x" + s.Combo : "";
             if (Power) Power.text = "x" + s.Firepower;
             if (WeaponLabel) WeaponLabel.text = s.Weapon.Label().ToUpper();
