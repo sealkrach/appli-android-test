@@ -40,22 +40,24 @@ open class Spawner(seed: Long, private val level: Level = Levels.palais) {
         if (isBossWave && waveProgress > 0.3f && bossSpawnedForWave != wave) {
             bossSpawnedForWave = wave
             val boss = level.bossForWave(wave)
-            enemies += Enemy(nextId(), boss, 0.5f, 1.1f, boss.hp + wave * 5)
+            enemies += Enemy(nextId(), boss, 0.5f, 1.1f, Difficulty.bossHp(boss, wave))
         }
 
         spawnTimer -= dt
-        val interval = (GameConfig.BASE_SPAWN_INTERVAL - wave * 0.06f).coerceAtLeast(GameConfig.MIN_SPAWN_INTERVAL)
+        val interval = Difficulty.spawnInterval(wave)
         while (spawnTimer <= 0f) {
             spawnTimer += interval
-            if (enemiesAlive + enemies.size < 40) {
-                // Les rangs élevés arrivent avec les vagues, les petits rangs restent majoritaires.
-                val pool = level.politicians
-                    .filter { wave >= it.tier.fromWave }
-                    .flatMap { t -> List(t.tier.spawnWeight) { t } }
+            // Les rangs élevés arrivent avec les vagues et deviennent de plus en plus fréquents ;
+            // les groupes grossissent, dans la limite du plafond de cibles à l'écran.
+            val pool = level.politicians.flatMap { t -> List(Difficulty.weight(t.tier, wave)) { t } }
+            if (pool.isEmpty()) continue
+            val group = Difficulty.groupSize(wave)
+            val center = random.nextFloat() * 0.8f + 0.1f
+            repeat(group) { i ->
+                if (enemiesAlive + enemies.size >= Difficulty.maxAlive(wave)) return@repeat
                 val type = pool.random(random)
-                // Les vagues avancées durcissent légèrement toutes les cibles.
-                val hp = type.hp + (wave - 1) / 3
-                enemies += Enemy(nextId(), type, random.nextFloat() * 0.9f + 0.05f, 1.05f, hp)
+                val x = (center + (i - (group - 1) / 2f) * 0.14f + (random.nextFloat() - 0.5f) * 0.06f).coerceIn(0.05f, 0.95f)
+                enemies += Enemy(nextId(), type, x, 1.05f + i * 0.03f, Difficulty.hp(type, wave))
             }
         }
 

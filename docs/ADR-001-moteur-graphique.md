@@ -70,3 +70,20 @@ référence et le banc de tests des règles ; il est porté en C# fonction par
 fonction (le code est volontairement sans dépendance et facile à traduire). Le
 prototype three.js reste la référence de style : proportions, palette, caméra,
 effets.
+
+
+## Note : « un moteur plus puissant »
+
+Dans le navigateur, three.js est un moteur de rendu, pas un moteur de jeu. Les
+alternatives plus complètes (Babylon.js, PlayCanvas) apportent physique,
+éditeur de scène et post-traitement intégrés, mais pas un rendu visiblement
+supérieur pour ce type de jeu. La maquette three.js a donc été poussée là où la
+puissance se voit : chaîne de post-traitement (bloom, FXAA, vignette), ciel en
+dégradé, matériaux émissifs, cibles éliminées qui basculent en physique
+simplifiée, trajectoires en cloche, zoom de caméra au changement d'arme.
+
+Pour le jeu publié, l'échelle de puissance est : Unity (standard du genre,
+suffisant pour tout ce que PolitiRush demande) < Unreal Engine 5 (rendu le plus
+puissant du marché, mais APK lourd, temps de build long, sur-dimensionné pour un
+hyper-casual). Décision inchangée : Unity. Unreal ne se justifierait que pour un
+virage vers un jeu premium en 3D réaliste, ce qui n'est pas le projet.

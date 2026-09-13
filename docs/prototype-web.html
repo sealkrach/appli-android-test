@@ -199,6 +199,18 @@ const BONUS = {
 };
 const BONUS_KEYS = Object.keys(BONUS);
 
+
+// Courbe de difficulté (miroir de Difficulty.kt) : résistance selon le rang et la vague,
+// nombre selon l'avancée (cadence, groupes, plafond, mélange des rangs).
+const Difficulty = {
+  spawnInterval: w => Math.max(C.MIN_SPAWN, C.BASE_SPAWN - (w - 1) * 0.07),
+  groupSize: w => Math.min(4, 1 + Math.floor((w - 1) / 3)),
+  maxAlive: w => Math.min(40, 12 + w * 3),
+  weight: (tier, w) => tier === 1 ? Math.max(1, 6 - Math.floor((w - 1) / 2)) : tier === 2 ? (w < 2 ? 0 : Math.min(4, w - 1)) : (w < 4 ? 0 : Math.min(3, w - 3)),
+  hp: (t, w) => t.hp + Math.floor((w - 1) / 3) * t.tier,
+  bossHp: (t, w) => t.hp + w * 5,
+};
+
 // ---------- Portes ----------
 const clampFp = v => Math.max(C.MIN_FP, Math.min(C.MAX_FP, v));
 const Op = {
@@ -228,19 +240,20 @@ class Spawner {
     if (wave % C.BOSS_EVERY === 0 && waveProgress > 0.3 && this.bossWave !== wave) {
       this.bossWave = wave;
       const b = BOSSES[Math.min(BOSSES.length - 1, wave / C.BOSS_EVERY - 1)];
-      const hp = b.hp + wave * 5;
+      const hp = Difficulty.bossHp(b, wave);
       enemies.push({ id: this.next(), type: b, x: 0.5, y: 1.1, hp, maxHp: hp, phase: this.r() * 6.28 });
     }
-    this.spawnTimer -= dt;
-    const interval = Math.max(C.MIN_SPAWN, C.BASE_SPAWN - wave * 0.06);
+    this.spawnTimer -= dt; const interval = Difficulty.spawnInterval(wave);
     while (this.spawnTimer <= 0) {
       this.spawnTimer += interval;
-      if (alive + enemies.length < 40) {
-        // Les rangs élevés arrivent avec les vagues ; les petits rangs restent majoritaires.
-        const pool = POLITICIANS.filter(t => wave >= t.fromWave);
-        const weighted = pool.flatMap(t => Array(t.tier === 1 ? 4 : t.tier === 2 ? 2 : 1).fill(t));
-        const t = this.pick(weighted); const hp = t.hp + Math.floor((wave - 1) / 3);
-        enemies.push({ id: this.next(), type: t, x: this.r() * 0.9 + 0.05, y: 1.05, hp, maxHp: hp, phase: this.r() * 6.28 });
+      const pool = POLITICIANS.flatMap(t => Array(Difficulty.weight(t.tier, wave)).fill(t));
+      if (!pool.length) continue;
+      const group = Difficulty.groupSize(wave), center = this.r() * 0.8 + 0.1;
+      for (let i = 0; i < group; i++) {
+        if (alive + enemies.length >= Difficulty.maxAlive(wave)) break;
+        const t = this.pick(pool); const hp = Difficulty.hp(t, wave);
+        const x = Math.max(0.05, Math.min(0.95, center + (i - (group - 1) / 2) * 0.14 + (this.r() - 0.5) * 0.06));
+        enemies.push({ id: this.next(), type: t, x, y: 1.05 + i * 0.03, hp, maxHp: hp, phase: this.r() * 6.28 });
       }
     }
     return { gates, enemies, bonuses };

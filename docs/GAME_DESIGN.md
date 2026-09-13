@@ -101,9 +101,25 @@ ont la même résistance quel que soit le bord politique.
 | Chef d'État (boss) | 60 à 80 | très lente | 500 à 600 | 25 à 30 | vagues 5 et 10 | Emmanuel Macron, Benyamin Netanyahou |
 | Hyper-influent (boss final) | 120 à 160 | très lente | 1000 à 1300 | 50 à 60 | vague 15 et au-delà | Donald Trump, Elon Musk, Vladimir Poutine, Mark Zuckerberg |
 
-Les rangs bas restent majoritaires même dans les vagues avancées (poids
-d'apparition 4 / 2 / 1), les ministres sont des moments de tension, les boss
-des événements. Toutes les cibles gagnent 1 PV toutes les 3 vagues.
+### Courbe de difficulté (`Difficulty.kt`)
+
+Deux axes séparés : la **résistance** vient du rang et grimpe avec les vagues,
+d'autant plus vite que le rang est élevé ; le **nombre** vient de l'avancée du
+niveau. Les boss gagnent 5 PV par vague.
+
+| Vague | Intervalle d'apparition | Taille des groupes | Plafond à l'écran | Poids H. fonct. / Député / Ministre | PV Préfet / Député / Ministre |
+|---|---|---|---|---|---|
+| 1 | 1,10 s | 1 | 15 | 6 / 0 / 0 | 1 / 2 / 5 |
+| 2 | 1,03 s | 1 | 18 | 6 / 1 / 0 | 1 / 2 / 5 |
+| 4 | 0,89 s | 2 | 24 | 5 / 3 / 1 | 2 / 4 / 8 |
+| 7 | 0,68 s | 3 | 33 | 3 / 4 / 3 | 3 / 6 / 11 |
+| 10 | 0,47 s | 4 | 40 | 2 / 4 / 3 | 4 / 8 / 14 |
+| 13 et plus | 0,25 s | 4 | 40 | 1 / 4 / 3 | +1 / +2 / +3 toutes les 3 vagues |
+
+Lecture : en vague 1 on ne croise que des hauts fonctionnaires, seuls, à 1 PV.
+En vague 10 ils arrivent par quatre, quatre fois plus vite, et les ministres à
+14 PV sont aussi fréquents qu'eux. Le multiplicateur de tir du joueur doit donc
+suivre, ce qui rend les portes de plus en plus décisives.
 
 Traits de caricature à produire (référence dans le prototype web, objet `look`) :
 coiffure (courte, longue, carré, houppe, clairsemée, chauve), teint, costume,

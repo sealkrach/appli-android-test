@@ -15,6 +15,9 @@
   (Godot 4 en alternative), `core` Kotlin comme spécification et banc de tests.
 - [x] Maquette 3D jouable (three.js, toon, ombres) : `docs/prototype-web-3d.html`.
 - [x] Trois niveaux à thème : Le Palais, Carburant à 2 €, L'aéroport bradé.
+- [x] Courbe de difficulté explicite (`Difficulty.kt`) : résistance par rang et par vague,
+  densité et mélange des rangs par avancée ; reportée dans les deux maquettes.
+- [x] Maquette 3D : post-traitement (bloom, FXAA, vignette), KO physiques, tomates en cloche.
 - [x] Méta-progression : boutique d'améliorations, sauvegarde locale.
 - [x] Écrans : accueil / choix du héros, jeu, fin de partie, boutique.
 - [x] CI GitHub Actions sur le module `core`.
