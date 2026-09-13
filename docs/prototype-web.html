@@ -1,0 +1,710 @@
+<title>PolitiRush</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@600;800&display=swap">
+<style>
+  :root {
+    --night: #1B1B2F; --night-2: #24243E; --night-3: #2E2E4F;
+    --tomato: #E63946; --orange: #F4A261; --teal: #2A9D8F; --coin: #FFD166;
+    --ink: #F1FAEE; --ink-dim: #B8B8D0;
+    --display: 'Bangers', 'Impact', 'Arial Black', sans-serif;
+    --body: 'Nunito', system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--night); color: var(--ink);
+    font-family: var(--body); font-weight: 600; min-height: 100vh;
+    padding: 16px; padding-block: 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  header { text-align: center; }
+  header h1 {
+    font-family: var(--display); font-weight: 400; font-size: clamp(40px, 8vw, 64px);
+    margin: 0; letter-spacing: 2px; color: var(--tomato);
+    text-shadow: 4px 4px 0 #7a1b24; line-height: 1;
+  }
+  header p { margin: 4px 0 0; color: var(--ink-dim); font-size: 14px; }
+  .phone {
+    position: relative; width: min(100%, 420px); aspect-ratio: 9 / 16; max-width: 100%;
+    max-height: 82vh; border-radius: 28px; overflow: hidden;
+    background: var(--night-2); border: 4px solid var(--night-3);
+    box-shadow: 0 20px 60px rgba(0,0,0,.5); touch-action: none; user-select: none;
+  }
+  canvas { display: block; width: 100%; height: 100%; }
+  .hud {
+    position: absolute; inset: 0; pointer-events: none; padding: 12px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .hud .row { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .hud .score { font-family: var(--display); font-size: 30px; letter-spacing: 1px; flex: 1; text-align: center; font-variant-numeric: tabular-nums; }
+  .hud .wave, .hud .coins { flex: 1; font-weight: 800; }
+  .hud .coins { text-align: right; color: var(--coin); }
+  .hud .lives { color: var(--tomato); letter-spacing: 2px; }
+  .hud .combo { margin-left: auto; color: var(--teal); font-weight: 800; }
+  .hud .effects { font-size: 12px; color: var(--ink-dim); }
+  .toast {
+    position: absolute; left: 0; right: 0; top: 34%; text-align: center; pointer-events: none;
+    font-family: var(--display); font-size: 44px; letter-spacing: 2px; opacity: 0;
+    text-shadow: 3px 3px 0 rgba(0,0,0,.6); transition: opacity .15s, transform .15s;
+  }
+  .toast.show { opacity: 1; transform: scale(1.15); }
+  .special {
+    position: absolute; right: 14px; bottom: 14px; width: 84px; height: 84px; border-radius: 50%;
+    border: 4px solid #1f6f66; background: var(--teal); color: #fff; font-family: var(--body);
+    font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 6px 0 #1f6f66;
+    display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.1;
+  }
+  .special:disabled { background: #4a4a6a; border-color: #333350; box-shadow: 0 6px 0 #333350; color: var(--ink-dim); cursor: default; }
+  .special:focus-visible { outline: 3px solid var(--coin); outline-offset: 2px; }
+  .overlay {
+    position: absolute; inset: 0; background: rgba(27,27,47,.94); display: flex; flex-direction: column;
+    padding: 20px; gap: 10px; overflow-y: auto;
+  }
+  .overlay h2 { font-family: var(--display); font-weight: 400; font-size: 34px; margin: 0; letter-spacing: 1px; text-wrap: balance; }
+  .overlay p { margin: 0; color: var(--ink-dim); font-size: 14px; }
+  .heroes { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .hero {
+    text-align: left; background: var(--night-3); border: 2px solid transparent; border-radius: 12px;
+    padding: 10px 12px; color: var(--ink); cursor: pointer; font-family: var(--body);
+  }
+  .hero.selected { border-color: var(--orange); }
+  .hero:focus-visible { outline: 3px solid var(--coin); }
+  .hero b { display: block; font-size: 15px; }
+  .hero small { display: block; color: var(--ink-dim); font-size: 12px; }
+  .hero em { display: block; color: var(--teal); font-style: normal; font-size: 12px; }
+  .cta {
+    font-family: var(--display); font-weight: 400; font-size: 26px; letter-spacing: 2px;
+    background: var(--tomato); color: #fff; border: 0; border-radius: 14px; padding: 14px;
+    cursor: pointer; box-shadow: 0 6px 0 #7a1b24; width: 100%;
+  }
+  .cta:active { transform: translateY(4px); box-shadow: 0 2px 0 #7a1b24; }
+  .cta:focus-visible { outline: 3px solid var(--coin); outline-offset: 2px; }
+  .cta.ghost { background: transparent; color: var(--ink-dim); box-shadow: none; font-family: var(--body); font-size: 15px; font-weight: 800; padding: 8px; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat { background: var(--night-3); border-radius: 12px; padding: 10px; }
+  .stat small { display: block; color: var(--ink-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+  .stat b { font-family: var(--display); font-size: 28px; font-weight: 400; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+  .legend { max-width: 420px; font-size: 13px; color: var(--ink-dim); text-align: center; line-height: 1.5; }
+  .legend b { color: var(--ink); }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+</style>
+
+<header>
+  <h1>PolitiRush</h1>
+  <p>Glisse le doigt pour bouger. Prends les bonnes portes. Tomate tout ce qui descend.</p>
+</header>
+
+<div class="phone" id="phone">
+  <canvas id="game" width="405" height="720"></canvas>
+  <div class="hud" id="hud" hidden>
+    <div class="row"><span class="wave" id="hWave">Vague 1</span><span class="score" id="hScore">0</span><span class="coins" id="hCoins">🪙 0</span></div>
+    <div class="row"><span class="lives" id="hLives">❤❤❤</span><span class="combo" id="hCombo"></span></div>
+    <div class="effects" id="hEffects"></div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <button class="special" id="special" hidden>SPÉCIAL</button>
+
+  <div class="overlay" id="home">
+    <h2>Choisis ton héros</h2>
+    <p>Six pastiches, six spéciaux. L'arme grossit avec la puissance : main, lance-pierre, canon, tank.</p>
+    <div class="heroes" id="heroList"></div>
+    <button class="cta" id="play">JOUER</button>
+  </div>
+
+  <div class="overlay" id="over" hidden>
+    <h2>Fin de partie</h2>
+    <p id="overMsg"></p>
+    <div class="stats">
+      <div class="stat"><small>Score</small><b id="oScore">0</b></div>
+      <div class="stat"><small>Vague</small><b id="oWave">1</b></div>
+      <div class="stat"><small>Pièces</small><b id="oCoins">0</b></div>
+      <div class="stat"><small>Meilleur combo</small><b id="oCombo">0</b></div>
+    </div>
+    <div style="flex:1"></div>
+    <button class="cta" id="retry">ENCORE UNE !</button>
+    <button class="cta ghost" id="menu">Changer de héros</button>
+  </div>
+</div>
+
+<div class="legend">
+  Portes <b style="color:var(--teal)">vertes</b> = plus de tomates, <b style="color:var(--tomato)">rouges</b> = moins. Armes : <b>main</b> (x1 à x4), <b>lance-pierre</b> (x5 à x12), <b>canon</b> (x13 à x32), <b>tank</b> (x33 et plus). Cibles par rang : hauts fonctionnaires (1 PV), députés (2 PV), ministres (5 PV). Boss : chefs d'État aux vagues 5 et 10, puis hyper-influents. Prototype web du moteur Kotlin.
+</div>
+
+<script>
+// ---------- Configuration (miroir de GameConfig.kt) ----------
+const C = {
+  HERO_MAX_HP: 3, START_FIREPOWER: 1, MIN_FP: 1, MAX_FP: 64,
+  HERO_Y: 0.08, HERO_RADIUS: 0.06, ENEMY_RADIUS: 0.05, PROJ_RADIUS: 0.015,
+  PROJ_SPEED: 1.4, MAX_PROJ: 300, SPREAD: 0.35,
+  SCROLL: 0.35, GATE_INTERVAL: 6, BONUS_INTERVAL: 11,
+  WAVE_DURATION: 20, BASE_SPAWN: 1.1, MIN_SPAWN: 0.25, BOSS_EVERY: 5,
+  COMBO_WINDOW: 2.5, COMBO_STEP: 10,
+  RAFALE_FACTOR: 3, RAFALE_DUR: 4, UPPERCUT_R: 0.35, LAMES_DUR: 5, GADGET_DUR: 4, COMPET_DUR: 6,
+};
+
+const HEROES = [
+  { id: 'rambeau', name: 'Jean Rambeau', tag: 'Bandeau rouge, marcel, jamais de repos.', fireRate: 6, damage: 1, moveSpeed: 1.2, special: 'RAFALE', cd: 14,
+    look: { skin: '#D9A066', hair: '#2b1d14', style: 'long', top: '#4a5a3a', band: '#E63946' } },
+  { id: 'balbo', name: 'Rocco Balbo', tag: 'Le boxeur de Philadelphie. Encaisse, puis frappe.', fireRate: 3, damage: 3, moveSpeed: 1.0, special: 'UPPERCUT', cd: 12,
+    look: { skin: '#E0B08A', hair: '#1a1a1a', style: 'short', top: '#7d7d7d', gloves: '#E63946' } },
+  { id: 'machete', name: 'El Machette', tag: 'Il ne texte pas. Il tranche.', fireRate: 4, damage: 2, moveSpeed: 1.1, special: 'LAMES', cd: 15,
+    look: { skin: '#B5773F', hair: '#111', style: 'long', top: '#2b2b2b', mustache: true } },
+  { id: 'chauve_souris', name: 'Le Chevalier Chauve-Souris', tag: 'Milliardaire nocturne, ceinture pleine de gadgets.', fireRate: 4.5, damage: 1, moveSpeed: 1.3, special: 'GADGET', cd: 16,
+    look: { skin: '#E0B08A', hair: '#111', style: 'cowl', top: '#1f1f2e', cape: '#111' } },
+  { id: 'papa', name: 'Le Papa Très Particulier', tag: 'Ex-agent. Il vous trouvera. Il vous tomatera.', fireRate: 5, damage: 2, moveSpeed: 1.1, special: 'COMPETENCES', cd: 15,
+    look: { skin: '#E8C0A0', hair: '#9a9a9a', style: 'short', top: '#3a3a3a', coat: true } },
+  { id: 'transporteur', name: 'Le Transporteur Chauve', tag: 'Costume impeccable, règles strictes, livraison garantie.', fireRate: 5, damage: 1, moveSpeed: 1.4, special: 'LIVRAISON', cd: 18,
+    look: { skin: '#E0B08A', hair: null, style: 'bald', top: '#111', shirt: '#fff', tie: '#111' } },
+];
+const SPECIAL_LABEL = { RAFALE: 'Rafale : cadence x3', UPPERCUT: 'Uppercut : onde de choc', LAMES: 'Lames : tirs perçants', GADGET: 'Gadget : gèle tout', COMPETENCES: 'Compétences très particulières : tir en éventail', LIVRAISON: 'Livraison : multiplicateur x2' };
+
+// Armes selon la puissance (multiplicateur de tir).
+const WEAPONS = [
+  { id: 'main', label: 'À la main', min: 1 },
+  { id: 'lance_pierre', label: 'Lance-pierre', min: 5 },
+  { id: 'canon', label: 'Canon à tomates', min: 13 },
+  { id: 'tank', label: 'Tank à tomates', min: 33 },
+];
+const weaponFor = fp => WEAPONS.filter(w => fp >= w.min).pop();
+
+// Cibles par rang réel : la résistance suit la hiérarchie.
+// tier 1 haut fonctionnaire, 2 député, 3 ministre, 4 chef d'État (boss), 5 hyper-influent (boss final).
+const TIERS = { 1: { label: 'Haut fonctionnaire', hp: 1, speed: 0.16, points: 10, coins: 1, fromWave: 1 },
+                2: { label: 'Député', hp: 2, speed: 0.13, points: 20, coins: 2, fromWave: 2 },
+                3: { label: 'Ministre', hp: 5, speed: 0.10, points: 50, coins: 3, fromWave: 4 } };
+const mk = (name, tier, look) => ({ id: name, name, tier, ...TIERS[tier], tierLabel: TIERS[tier].label, look });
+const POLITICIANS = [
+  mk('Le Préfet', 1, { skin: '#E8C0A0', hair: '#777', style: 'short', suit: '#2f3542', tie: '#0033A0', cap: true }),
+  mk("L'Inspecteur des Finances", 1, { skin: '#F0D0B0', hair: '#553', style: 'short', suit: '#3d3d5c', tie: '#777', glasses: true }),
+  mk('La Directrice de Cabinet', 1, { skin: '#E8C0A0', hair: '#6b3a2a', style: 'bob', suit: '#4a4a6a', glasses: true }),
+  mk('Le Député de base', 2, { skin: '#E8C0A0', hair: '#5a4632', style: 'short', suit: '#34495e', tie: '#E63946', scarf: true }),
+  mk('La Députée en marche', 2, { skin: '#F0D0B0', hair: '#c9a227', style: 'bob', suit: '#2c3e50', scarf: true }),
+  mk('Le Député insoumis', 2, { skin: '#E0B08A', hair: '#222', style: 'short', suit: '#6c2e2e', tie: '#E63946', scarf: true }),
+  mk('Gabriel Attal', 3, { skin: '#F0D0B0', hair: '#3b2a1a', style: 'short', suit: '#1f3a5f', tie: '#1f3a5f' }),
+  mk('Aurélie Filippetti', 3, { skin: '#F0D0B0', hair: '#2a1a12', style: 'long', suit: '#8e1b3c' }),
+  mk('Bruno Le Maire', 3, { skin: '#F0D0B0', hair: '#9a8a7a', style: 'short', suit: '#2c3e50', tie: '#3a6ea5' }),
+  mk('Gérald Darmanin', 3, { skin: '#F0D0B0', hair: '#2b1d14', style: 'short', suit: '#1a1a2e', tie: '#0033A0' }),
+];
+// Boss : chefs d'État aux vagues 5 et 10, hyper-influents ensuite.
+const BOSSES = [
+  { id: 'macron', name: 'Emmanuel Macron', tierLabel: "Chef d'État", hp: 60, speed: 0.04, points: 500, coins: 25, boss: true, look: { skin: '#F0D0B0', hair: '#4a3728', style: 'short', suit: '#1f3a5f', tie: '#1f3a5f' } },
+  { id: 'netanyahou', name: 'Benyamin Netanyahou', tierLabel: 'Chef de gouvernement', hp: 80, speed: 0.04, points: 600, coins: 30, boss: true, look: { skin: '#E8C0A0', hair: '#bbb', style: 'short', suit: '#222', tie: '#3a6ea5' } },
+  { id: 'trump', name: 'Donald Trump', tierLabel: 'Hyper-influent', hp: 120, speed: 0.035, points: 1000, coins: 50, boss: true, look: { skin: '#F2B07A', hair: '#F5D76E', style: 'quiff', suit: '#1a1a2e', tie: '#E63946', red_cap: true } },
+  { id: 'musk', name: 'Elon Musk', tierLabel: 'Hyper-influent', hp: 150, speed: 0.035, points: 1200, coins: 60, boss: true, look: { skin: '#F0D0B0', hair: '#3b2a1a', style: 'short', suit: '#111', tee: true } },
+  { id: 'poutine', name: 'Vladimir Poutine', tierLabel: 'Hyper-influent', hp: 160, speed: 0.03, points: 1300, coins: 60, boss: true, look: { skin: '#F0D0B0', hair: '#d9d0c0', style: 'thin', suit: '#2b2b2b', tie: '#8b0000' } },
+  { id: 'zuckerberg', name: 'Mark Zuckerberg', tierLabel: 'Hyper-influent', hp: 140, speed: 0.04, points: 1100, coins: 55, boss: true, look: { skin: '#F5DCC5', hair: '#6b4a2a', style: 'short', suit: '#444', tee: true } },
+];
+const BONUS = {
+  SONDAGE: { label: 'Sondage', dur: 5 }, SCANDALE: { label: 'Scandale', dur: 3 }, TOMATE_GEANTE: { label: 'Tomate géante', dur: 6 },
+  MOTION: { label: 'Motion de censure', dur: 0 }, MEETING: { label: 'Meeting', dur: 8 },
+};
+const BONUS_KEYS = Object.keys(BONUS);
+
+
+// Courbe de difficulté (miroir de Difficulty.kt) : résistance selon le rang et la vague,
+// nombre selon l'avancée (cadence, groupes, plafond, mélange des rangs).
+const Difficulty = {
+  spawnInterval: w => Math.max(C.MIN_SPAWN, C.BASE_SPAWN - (w - 1) * 0.07),
+  groupSize: w => Math.min(4, 1 + Math.floor((w - 1) / 3)),
+  maxAlive: w => Math.min(40, 12 + w * 3),
+  weight: (tier, w) => tier === 1 ? Math.max(1, 6 - Math.floor((w - 1) / 2)) : tier === 2 ? (w < 2 ? 0 : Math.min(4, w - 1)) : (w < 4 ? 0 : Math.min(3, w - 3)),
+  hp: (t, w) => t.hp + Math.floor((w - 1) / 3) * t.tier,
+  bossHp: (t, w) => t.hp + w * 5,
+};
+
+// ---------- Portes ----------
+const clampFp = v => Math.max(C.MIN_FP, Math.min(C.MAX_FP, v));
+const Op = {
+  mul: n => ({ label: 'x' + n, good: true, apply: v => clampFp(v * n) }),
+  add: n => ({ label: '+' + n, good: true, apply: v => clampFp(v + n) }),
+  sub: n => ({ label: '-' + n, good: false, apply: v => clampFp(v - n) }),
+  div: n => ({ label: '÷' + n, good: false, apply: v => clampFp(Math.floor(v / n)) }),
+};
+
+// ---------- RNG déterministe (comme Spawner(seed)) ----------
+function rng(seed) {
+  let a = seed >>> 0;
+  return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+
+// ---------- Spawner ----------
+class Spawner {
+  constructor(seed) { this.r = rng(seed); this.id = 1; this.gateTimer = 2; this.bonusTimer = 5; this.spawnTimer = 1; this.bossWave = 0; }
+  next() { return this.id++; }
+  pick(arr) { return arr[Math.floor(this.r() * arr.length)]; }
+  advance(dt, wave, waveProgress, alive) {
+    const gates = [], enemies = [], bonuses = [];
+    this.gateTimer -= dt;
+    if (this.gateTimer <= 0) { this.gateTimer += C.GATE_INTERVAL; gates.push(...this.gatePair(wave)); }
+    this.bonusTimer -= dt;
+    if (this.bonusTimer <= 0) { this.bonusTimer += C.BONUS_INTERVAL; bonuses.push({ id: this.next(), type: this.pick(BONUS_KEYS), x: this.r() * 0.8 + 0.1, y: 1.05 }); }
+    if (wave % C.BOSS_EVERY === 0 && waveProgress > 0.3 && this.bossWave !== wave) {
+      this.bossWave = wave;
+      const b = BOSSES[Math.min(BOSSES.length - 1, wave / C.BOSS_EVERY - 1)];
+      const hp = Difficulty.bossHp(b, wave);
+      enemies.push({ id: this.next(), type: b, x: 0.5, y: 1.1, hp, maxHp: hp, phase: this.r() * 6.28 });
+    }
+    this.spawnTimer -= dt; const interval = Difficulty.spawnInterval(wave);
+    while (this.spawnTimer <= 0) {
+      this.spawnTimer += interval;
+      const pool = POLITICIANS.flatMap(t => Array(Difficulty.weight(t.tier, wave)).fill(t));
+      if (!pool.length) continue;
+      const group = Difficulty.groupSize(wave), center = this.r() * 0.8 + 0.1;
+      for (let i = 0; i < group; i++) {
+        if (alive + enemies.length >= Difficulty.maxAlive(wave)) break;
+        const t = this.pick(pool); const hp = Difficulty.hp(t, wave);
+        const x = Math.max(0.05, Math.min(0.95, center + (i - (group - 1) / 2) * 0.14 + (this.r() - 0.5) * 0.06));
+        enemies.push({ id: this.next(), type: t, x, y: 1.05 + i * 0.03, hp, maxHp: hp, phase: this.r() * 6.28 });
+      }
+    }
+    return { gates, enemies, bonuses };
+  }
+  gatePair(wave) {
+    const good = this.goodOp(wave); const other = this.r() < 0.65 ? this.badOp() : this.goodOp(wave);
+    const side = Math.floor(this.r() * 2);
+    return [{ id: this.next(), op: good, side, y: 1.1 }, { id: this.next(), op: other, side: 1 - side, y: 1.1 }];
+  }
+  goodOp(wave) { const k = Math.floor(this.r() * 10); return k <= 5 ? Op.add(2 + Math.floor(this.r() * (2 + wave))) : k <= 8 ? Op.mul(2) : Op.mul(3); }
+  badOp() { return Math.floor(this.r() * 10) <= 6 ? Op.sub(1 + Math.floor(this.r() * 4)) : Op.div(2); }
+}
+
+// ---------- Moteur (miroir de GameEngine.kt) ----------
+class Engine {
+  constructor(hero, seed) {
+    this.sp = new Spawner(seed);
+    this.s = { hero, heroX: 0.5, heroHp: C.HERO_MAX_HP, firepower: C.START_FIREPOWER, wave: 1, score: 0, coins: 0, combo: 0, bestCombo: 0,
+      comboTimer: 0, elapsed: 0, enemies: [], gates: [], projectiles: [], bonuses: [], coinsOnTrack: [], effects: {}, fireTimer: 0,
+      specialCd: 0, specialActive: 0, status: 'RUNNING', splashes: [] };
+  }
+  has(e) { return (this.s.effects[e] || 0) > 0; }
+  get specialReady() { return this.s.specialCd <= 0 && this.s.status === 'RUNNING'; }
+  step(dt, input) {
+    const s = this.s, ev = [];
+    if (s.status !== 'RUNNING' || dt <= 0) return ev;
+    s.elapsed += dt;
+    const wave = Math.floor(s.elapsed / C.WAVE_DURATION) + 1;
+    if (wave !== s.wave) { s.wave = wave; ev.push({ t: 'wave', wave }); }
+    if (input.targetX != null) {
+      const t = Math.max(0, Math.min(1, input.targetX)), d = t - s.heroX, m = s.hero.moveSpeed * dt;
+      s.heroX = Math.abs(d) <= m ? t : s.heroX + Math.sign(d) * m;
+    }
+    for (const k in s.effects) { s.effects[k] -= dt; if (s.effects[k] <= 0) delete s.effects[k]; }
+    s.specialCd = Math.max(0, s.specialCd - dt); s.specialActive = Math.max(0, s.specialActive - dt);
+    s.comboTimer += dt; if (s.combo > 0 && s.comboTimer > C.COMBO_WINDOW) s.combo = 0;
+    s.splashes = s.splashes.filter(p => (p.t -= dt) > 0);
+    if (input.useSpecial && this.specialReady) { this.useSpecial(); ev.push({ t: 'special', special: s.hero.special }); }
+    const wp = (s.elapsed % C.WAVE_DURATION) / C.WAVE_DURATION;
+    const b = this.sp.advance(dt, wave, wp, s.enemies.length);
+    s.gates.push(...b.gates); s.enemies.push(...b.enemies); s.bonuses.push(...b.bonuses);
+    const scroll = C.SCROLL * dt;
+    const frozen = this.has('SCANDALE') || (s.hero.special === 'GADGET' && s.specialActive > 0);
+    const magnet = this.has('MEETING');
+    for (const g of s.gates) g.y -= scroll; s.gates = s.gates.filter(g => g.y > -0.1);
+    for (const bo of s.bonuses) bo.y -= scroll; s.bonuses = s.bonuses.filter(bo => bo.y > -0.1);
+    if (!frozen) for (const e of s.enemies) e.y -= e.type.speed * dt;
+    for (const c of s.coinsOnTrack) {
+      if (magnet) { const dx = s.heroX - c.x, dy = C.HERO_Y - c.y, d = Math.max(1e-4, Math.hypot(dx, dy)), st = 2 * dt;
+        if (d <= st) { c.x = s.heroX; c.y = C.HERO_Y; } else { c.x += dx / d * st; c.y += dy / d * st; } }
+      else c.y -= scroll;
+    }
+    s.coinsOnTrack = s.coinsOnTrack.filter(c => c.y > -0.1);
+    for (const g of s.gates) {
+      if (!g.consumed && g.y <= C.HERO_Y) {
+        const xMin = g.side === 0 ? 0 : 0.5, xMax = g.side === 0 ? 0.5 : 1;
+        if (s.heroX >= xMin && s.heroX < xMax) { s.firepower = g.op.apply(s.firepower); ev.push({ t: 'gate', op: g.op, fp: s.firepower }); }
+        g.consumed = true;
+      }
+    }
+    // Ramassage avant les collisions.
+    const pr = C.HERO_RADIUS + 0.03;
+    const picked = s.bonuses.filter(bo => Math.hypot(bo.x - s.heroX, bo.y - C.HERO_Y) <= pr);
+    s.bonuses = s.bonuses.filter(bo => !picked.includes(bo));
+    for (const bo of picked) { this.applyBonus(bo.type); ev.push({ t: 'bonus', type: bo.type }); }
+    const cp = s.coinsOnTrack.filter(c => Math.hypot(c.x - s.heroX, c.y - C.HERO_Y) <= pr);
+    if (cp.length) { s.coins += cp.length; s.coinsOnTrack = s.coinsOnTrack.filter(c => !cp.includes(c)); }
+    // Tir.
+    const rafale = s.hero.special === 'RAFALE' && s.specialActive > 0;
+    const fireRate = s.hero.fireRate * (rafale ? C.RAFALE_FACTOR : 1);
+    const piercing = this.has('TOMATE_GEANTE') || (s.hero.special === 'LAMES' && s.specialActive > 0);
+    const fan = this.has('SONDAGE') || (s.hero.special === 'COMPETENCES' && s.specialActive > 0);
+    s.fireTimer += dt; const interval = 1 / fireRate;
+    while (s.fireTimer >= interval) { s.fireTimer -= interval; s.projectiles.push(...this.salvo(piercing, fan)); }
+    if (s.projectiles.length > C.MAX_PROJ) s.projectiles = s.projectiles.slice(-C.MAX_PROJ);
+    // Projectiles et collisions.
+    const kept = [];
+    for (const p of s.projectiles) {
+      p.y += C.PROJ_SPEED * dt; p.x += p.vx * dt;
+      if (p.y > 1.1 || p.x < -0.05 || p.x > 1.05) continue;
+      const hitR = C.PROJ_RADIUS;
+      const hit = s.enemies.find(e => e.hp > 0 && Math.hypot(e.x - p.x, e.y - p.y) <= (e.type.boss ? 0.11 : C.ENEMY_RADIUS * (e.type.tier === 3 ? 1.25 : 1)) + hitR);
+      if (!hit) { kept.push(p); continue; }
+      hit.hp -= p.damage; hit.hurt = 0.1;
+      if (p.piercing) kept.push(p);
+    }
+    s.projectiles = kept;
+    // Éliminations.
+    const alive = [];
+    for (const e of s.enemies) {
+      if (e.hp <= 0) {
+        s.combo++; s.bestCombo = Math.max(s.bestCombo, s.combo); s.comboTimer = 0;
+        s.score += e.type.points * (1 + Math.floor(s.combo / C.COMBO_STEP));
+        for (let i = 0; i < e.type.coins; i++) s.coinsOnTrack.push({ id: this.sp.next(), x: Math.max(0, Math.min(1, e.x + (i - e.type.coins / 2) * 0.03)), y: e.y });
+        s.splashes.push({ x: e.x, y: e.y, t: 0.5, big: !!e.type.boss });
+        ev.push({ t: 'kill', type: e.type, combo: s.combo, x: e.x, y: e.y });
+      } else { if (e.hurt) e.hurt -= dt; alive.push(e); }
+    }
+    s.enemies = alive;
+    const reached = s.enemies.filter(e => e.y <= C.HERO_Y + C.ENEMY_RADIUS);
+    if (reached.length) {
+      s.enemies = s.enemies.filter(e => !reached.includes(e)); s.heroHp = Math.max(0, s.heroHp - reached.length); s.combo = 0;
+      ev.push({ t: 'hurt' });
+      if (s.heroHp <= 0) { s.status = 'GAME_OVER'; ev.push({ t: 'over' }); }
+    }
+    return ev;
+  }
+  salvo(piercing, fan) {
+    const s = this.s, n = s.firepower, w = fan ? 1 : C.SPREAD, out = [];
+    for (let i = 0; i < n; i++) {
+      const t = n === 1 ? 0 : i / (n - 1) - 0.5;
+      const x = fan ? 0.5 + t * w : Math.max(0.02, Math.min(0.98, s.heroX + t * w));
+      out.push({ x, y: C.HERO_Y, vx: fan ? t * 0.6 : 0, damage: s.hero.damage, piercing });
+    }
+    return out;
+  }
+  useSpecial() {
+    const s = this.s; s.specialCd = s.hero.cd;
+    switch (s.hero.special) {
+      case 'RAFALE': s.specialActive = C.RAFALE_DUR; break;
+      case 'LAMES': s.specialActive = C.LAMES_DUR; break;
+      case 'GADGET': s.specialActive = C.GADGET_DUR; break;
+      case 'COMPETENCES': s.specialActive = C.COMPET_DUR; break;
+      case 'LIVRAISON': s.firepower = Op.mul(2).apply(s.firepower); break;
+      case 'UPPERCUT': for (const e of s.enemies) { if (Math.hypot(e.x - s.heroX, e.y - C.HERO_Y) <= C.UPPERCUT_R) { e.hp -= 10; e.y = Math.min(1.05, e.y + 0.3); e.hurt = 0.2; } } s.shock = 0.3; break;
+    }
+  }
+  applyBonus(type) {
+    const s = this.s;
+    if (type === 'MOTION') { for (const e of s.enemies) e.hp = e.type.boss ? e.hp - Math.floor(e.type.hp * 0.3) : 0; s.flash = 0.25; }
+    else s.effects[type] = BONUS[type].dur;
+  }
+}
+
+// ---------- Moteur de rendu cartoon ----------
+// Principes : contour épais sous chaque forme, ombrage cel (ombre plate en bas,
+// reflet en haut), proportions "grosse tête", squash & stretch, particules et
+// secousses. Tout est vectoriel : l'échelle est libre et le style reste uniforme.
+const cv = document.getElementById("game"), ctx = cv.getContext("2d");
+let input_targetX = null;
+const INK = '#17122b';
+let shake = 0, pops = [], particles = [];
+
+const Cartoon = {
+  /** Trace `path`, contour épais puis remplissage, puis ombre cel et reflet. */
+  shape(path, fill, o = 3, opt = {}) {
+    ctx.beginPath(); path();
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.lineWidth = o * 2; ctx.strokeStyle = INK; ctx.stroke();
+    ctx.fillStyle = fill; ctx.fill();
+    if (opt.shade) { ctx.save(); ctx.clip(); ctx.fillStyle = 'rgba(20,10,40,.22)'; const b = opt.shade; ctx.fillRect(b.x, b.y, b.w, b.h); ctx.restore(); }
+    if (opt.gloss) { ctx.save(); ctx.clip(); ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.beginPath(); ctx.ellipse(opt.gloss.x, opt.gloss.y, opt.gloss.rx, opt.gloss.ry, -0.4, 0, 7); ctx.fill(); ctx.restore(); }
+  },
+  circle(x, y, r, fill, o = 3, shaded = true) {
+    Cartoon.shape(() => ctx.arc(x, y, r, 0, 7), fill, o, shaded ? { shade: { x: x - r, y: y + r * 0.35, w: 2 * r, h: r }, gloss: { x: x - r * 0.35, y: y - r * 0.4, rx: r * 0.3, ry: r * 0.18 } } : {});
+  },
+  rrect(x, y, w, h, rad, fill, o = 3, shaded = true) {
+    Cartoon.shape(() => ctx.roundRect(x, y, w, h, rad), fill, o, shaded ? { shade: { x, y: y + h * 0.6, w, h: h * 0.4 } } : {});
+  },
+  limb(x1, y1, x2, y2, w, fill, o = 3) {
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.lineWidth = w + o * 2; ctx.strokeStyle = INK; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    ctx.lineWidth = w; ctx.strokeStyle = fill; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  },
+  /** Texte façon BD : contour épais et remplissage. */
+  text(t, x, y, size, fill, o = 4, font = 'Bangers, Impact, sans-serif') {
+    const m = font.match(/^(\d{3})\s+(.*)$/);
+    ctx.font = m ? `${m[1]} ${size}px ${m[2]}` : `${size}px ${font}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+    ctx.lineWidth = o * 2; ctx.strokeStyle = INK; ctx.strokeText(t, x, y);
+    ctx.fillStyle = fill; ctx.fillText(t, x, y);
+  },
+  tomato(x, y, r, o = 2) {
+    Cartoon.circle(x, y, r, '#E63946', o);
+    Cartoon.shape(() => { ctx.moveTo(x, y - r * 0.9); ctx.lineTo(x - r * 0.5, y - r * 1.3); ctx.lineTo(x - r * 0.1, y - r * 1.0); ctx.lineTo(x + r * 0.1, y - r * 1.5); ctx.lineTo(x + r * 0.3, y - r * 1.0); ctx.lineTo(x + r * 0.6, y - r * 1.25); ctx.closePath(); }, '#2A9D8F', Math.max(1, o * 0.7), {});
+  },
+};
+
+/**
+ * Personnage cartoon. `u` = unité (demi-largeur du buste). Proportions : tête ≈ 1.3u de rayon.
+ * `phase` anime la course, `opt` : frozen, hurt, angry (sourcils), tilt (inclinaison en radians), squash.
+ */
+function drawPerson(x, y, u, look, phase, opt = {}) {
+  const run = Math.sin(phase), swing = run * 0.9, arm = -run * 0.8;
+  const bob = Math.abs(Math.cos(phase)) * u * 0.3;
+  const sq = opt.squash ?? (1 + Math.cos(phase * 2) * 0.05);
+  const skin = opt.frozen ? '#9AD8E8' : (opt.hurt ? '#fff' : look.skin);
+  const suit = opt.frozen ? '#5fa8c0' : (look.suit || look.top || '#444');
+  const o = Math.max(1.5, u * 0.16);
+  ctx.save(); ctx.translate(x, y - bob); ctx.rotate(opt.tilt || 0); ctx.scale(1 / sq, sq);
+  // Jambes et chaussures.
+  const lx1 = -u * 0.45 + swing * u * 0.7, lx2 = u * 0.45 - swing * u * 0.7, ly = u * 2.0;
+  Cartoon.limb(-u * 0.45, u * 0.6, lx1, ly, u * 0.55, look.pants || '#2b2540', o);
+  Cartoon.limb(u * 0.45, u * 0.6, lx2, ly, u * 0.55, look.pants || '#2b2540', o);
+  Cartoon.shape(() => ctx.ellipse(lx1, ly + u * 0.1, u * 0.45, u * 0.25, 0, 0, 7), look.shoes || '#1a1a1a', o, {});
+  Cartoon.shape(() => ctx.ellipse(lx2, ly + u * 0.1, u * 0.45, u * 0.25, 0, 0, 7), look.shoes || '#1a1a1a', o, {});
+  // Cape.
+  if (look.cape) Cartoon.shape(() => { ctx.moveTo(-u, -u * 0.8); ctx.lineTo(u, -u * 0.8); ctx.lineTo(u * 1.5 + arm * u * 0.4, u * 1.7); ctx.lineTo(-u * 1.5 - arm * u * 0.4, u * 1.7); ctx.closePath(); }, look.cape, o, {});
+  // Buste.
+  Cartoon.rrect(-u, -u * 0.95, u * 2, u * 1.75, u * 0.35, suit, o);
+  if (look.shirt || look.tie) { ctx.fillStyle = look.shirt || '#fff'; ctx.beginPath(); ctx.moveTo(-u * 0.3, -u * 0.95); ctx.lineTo(u * 0.3, -u * 0.95); ctx.lineTo(0, u * 0.35); ctx.closePath(); ctx.fill(); }
+  if (look.tie) { Cartoon.shape(() => { ctx.moveTo(-u * 0.12, -u * 0.85); ctx.lineTo(u * 0.12, -u * 0.85); ctx.lineTo(u * 0.16, u * 0.25); ctx.lineTo(0, u * 0.4); ctx.lineTo(-u * 0.16, u * 0.25); ctx.closePath(); }, look.tie, o * 0.6, {}); }
+  if (look.tee) { ctx.fillStyle = '#222'; ctx.beginPath(); ctx.roundRect(-u * 0.55, -u * 0.95, u * 1.1, u * 0.5, u * 0.2); ctx.fill(); }
+  if (look.scarf) { ctx.save(); ctx.rotate(-0.55); ['#0033A0', '#fff', '#E63946'].forEach((c, i) => { ctx.fillStyle = c; ctx.fillRect(-u * 1.05 + i * u * 0.3, -u * 0.6, u * 0.3, u * 1.7); }); ctx.strokeStyle = INK; ctx.lineWidth = o; ctx.strokeRect(-u * 1.05, -u * 0.6, u * 0.9, u * 1.7); ctx.restore(); }
+  if (look.band && !look.hair) {}
+  // Bras et mains (moufles).
+  const ax1 = -u * 0.95 + arm * u * 0.6, ax2 = u * 0.95 - arm * u * 0.6, ay = u * 0.7;
+  Cartoon.limb(-u * 0.9, -u * 0.6, ax1, ay, u * 0.42, suit, o);
+  Cartoon.limb(u * 0.9, -u * 0.6, ax2, ay, u * 0.42, suit, o);
+  const handCol = look.gloves || skin;
+  Cartoon.circle(ax1, ay, u * (look.gloves ? 0.42 : 0.3), handCol, o, false);
+  Cartoon.circle(ax2, ay, u * (look.gloves ? 0.42 : 0.3), handCol, o, false);
+  // Tête (grosse) et cou.
+  const hr = u * 1.3, hy = -u * 2.15;
+  Cartoon.limb(0, -u * 0.9, 0, hy + hr * 0.6, u * 0.5, skin, o);
+  Cartoon.circle(0, hy, hr, skin, o);
+  // Oreilles.
+  Cartoon.circle(-hr * 0.95, hy + hr * 0.05, hr * 0.2, skin, o * 0.8, false);
+  Cartoon.circle(hr * 0.95, hy + hr * 0.05, hr * 0.2, skin, o * 0.8, false);
+  // Cheveux.
+  if (look.hair && look.style !== 'bald') {
+    const H = look.hair, st = look.style;
+    if (st === 'quiff') Cartoon.shape(() => { ctx.ellipse(hr * 0.15, hy - hr * 0.8, hr * 1.2, hr * 0.5, -0.2, 0, 7); }, H, o, {});
+    else if (st === 'long' || st === 'bob') Cartoon.shape(() => { const L = st === 'long' ? hr * 1.9 : hr * 1.15; ctx.moveTo(-hr * 1.1, hy + L - hr * 0.3); ctx.lineTo(-hr * 1.1, hy - hr * 0.2); ctx.arc(0, hy - hr * 0.2, hr * 1.1, Math.PI, 2 * Math.PI); ctx.lineTo(hr * 1.1, hy + L - hr * 0.3); ctx.lineTo(hr * 0.72, hy + L - hr * 0.3); ctx.lineTo(hr * 0.72, hy - hr * 0.15); ctx.lineTo(-hr * 0.72, hy - hr * 0.15); ctx.lineTo(-hr * 0.72, hy + L - hr * 0.3); ctx.closePath(); }, H, o, {});
+    else if (st === 'thin') Cartoon.shape(() => { ctx.arc(0, hy - hr * 0.35, hr * 0.95, Math.PI * 1.2, Math.PI * 1.8); ctx.closePath(); }, H, o * 0.8, {});
+    else if (st === 'cowl') Cartoon.shape(() => { ctx.arc(0, hy, hr * 1.06, Math.PI * 0.9, Math.PI * 2.1); ctx.lineTo(hr * 0.85, hy - hr * 1.8); ctx.lineTo(hr * 0.3, hy - hr * 1.0); ctx.lineTo(-hr * 0.3, hy - hr * 1.0); ctx.lineTo(-hr * 0.85, hy - hr * 1.8); ctx.closePath(); }, H, o, {});
+    else Cartoon.shape(() => { ctx.arc(0, hy - hr * 0.1, hr * 1.04, Math.PI * 1.02, Math.PI * 1.98); ctx.quadraticCurveTo(hr * 0.6, hy - hr * 0.5, 0, hy - hr * 0.35); ctx.quadraticCurveTo(-hr * 0.6, hy - hr * 0.5, -hr * 1.04, hy - hr * 0.15); ctx.closePath(); }, H, o, {});
+  }
+  if (look.band) Cartoon.shape(() => { ctx.roundRect(-hr * 1.05, hy - hr * 0.55, hr * 2.1, hr * 0.32, hr * 0.1); ctx.moveTo(hr * 0.9, hy - hr * 0.45); ctx.lineTo(hr * 1.7, hy - hr * 0.3); ctx.lineTo(hr * 1.5, hy + hr * 0.1); ctx.closePath(); }, look.band, o * 0.8, {});
+  if (look.cap) { Cartoon.rrect(-hr * 1.1, hy - hr * 1.0, hr * 2.2, hr * 0.36, hr * 0.08, '#1a2a4a', o, false); Cartoon.rrect(-hr * 0.75, hy - hr * 1.4, hr * 1.5, hr * 0.5, hr * 0.12, '#1a2a4a', o, false); }
+  if (look.red_cap) { Cartoon.shape(() => { ctx.arc(0, hy - hr * 0.65, hr * 0.95, Math.PI, 2 * Math.PI); ctx.closePath(); }, '#E63946', o, {}); Cartoon.rrect(-hr * 1.25, hy - hr * 0.85, hr * 2.5, hr * 0.3, hr * 0.1, '#E63946', o, false); }
+  // Visage : yeux blancs, pupilles, sourcils, nez, bouche.
+  const ey = hy - hr * 0.05, ex = hr * 0.38, er = hr * 0.28;
+  if (opt.hurt) {
+    ctx.strokeStyle = INK; ctx.lineWidth = o * 1.2; ctx.lineCap = 'round';
+    for (const sx of [-ex, ex]) { ctx.beginPath(); ctx.moveTo(sx - er * 0.6, ey - er * 0.6); ctx.lineTo(sx + er * 0.6, ey + er * 0.6); ctx.moveTo(sx + er * 0.6, ey - er * 0.6); ctx.lineTo(sx - er * 0.6, ey + er * 0.6); ctx.stroke(); }
+  } else {
+    Cartoon.circle(-ex, ey, er, '#fff', o * 0.8, false); Cartoon.circle(ex, ey, er, '#fff', o * 0.8, false);
+    const look_dx = opt.facing || 0;
+    ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(-ex + look_dx * er * 0.3, ey + er * 0.15, er * 0.45, 0, 7); ctx.arc(ex + look_dx * er * 0.3, ey + er * 0.15, er * 0.45, 0, 7); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(-ex - er * 0.1, ey - er * 0.05, er * 0.14, 0, 7); ctx.arc(ex - er * 0.1, ey - er * 0.05, er * 0.14, 0, 7); ctx.fill();
+  }
+  if (look.glasses) { ctx.strokeStyle = INK; ctx.lineWidth = o; ctx.strokeRect(-ex - er * 1.1, ey - er * 0.9, er * 2.2, er * 1.8); ctx.strokeRect(ex - er * 1.1, ey - er * 0.9, er * 2.2, er * 1.8); ctx.beginPath(); ctx.moveTo(-ex + er * 1.1, ey); ctx.lineTo(ex - er * 1.1, ey); ctx.stroke(); }
+  // Sourcils : en colère pour les cibles, décidés pour le héros.
+  ctx.strokeStyle = look.hair || INK; ctx.lineWidth = o * 1.3; ctx.lineCap = 'round';
+  const tiltB = opt.angry ? 0.45 : 0.15;
+  ctx.beginPath(); ctx.moveTo(-ex - er * 0.8, ey - er * 1.25 - tiltB * er); ctx.lineTo(-ex + er * 0.7, ey - er * 1.25 + tiltB * er); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ex + er * 0.8, ey - er * 1.25 - tiltB * er); ctx.lineTo(ex - er * 0.7, ey - er * 1.25 + tiltB * er); ctx.stroke();
+  // Nez.
+  Cartoon.circle(0, hy + hr * 0.3, hr * 0.17, skin, o * 0.7, false);
+  if (look.mustache) Cartoon.shape(() => { ctx.ellipse(-hr * 0.3, hy + hr * 0.52, hr * 0.32, hr * 0.13, 0.3, 0, 7); ctx.ellipse(hr * 0.3, hy + hr * 0.52, hr * 0.32, hr * 0.13, -0.3, 0, 7); }, '#1a1a1a', o * 0.6, {});
+  // Bouche.
+  if (opt.frozen) Cartoon.circle(0, hy + hr * 0.62, hr * 0.15, '#7a2a3a', o * 0.7, false);
+  else if (opt.angry) Cartoon.shape(() => { ctx.moveTo(-hr * 0.4, hy + hr * 0.7); ctx.quadraticCurveTo(0, hy + hr * 0.45, hr * 0.4, hy + hr * 0.7); ctx.quadraticCurveTo(0, hy + hr * 0.95, -hr * 0.4, hy + hr * 0.7); ctx.closePath(); }, '#7a2a3a', o * 0.7, {});
+  else { ctx.strokeStyle = INK; ctx.lineWidth = o; ctx.beginPath(); ctx.arc(0, hy + hr * 0.45, hr * 0.38, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke(); }
+  ctx.restore();
+}
+
+function drawWeaponAndHero(hx, hy, W, s, weapon, phase) {
+  const u = W * 0.034, look = s.hero.look, o = 3;
+  if (weapon.id === 'tank') {
+    const w = W * 0.24, h = W * 0.1;
+    Cartoon.rrect(hx - w / 2, hy - h * 0.15, w, h * 0.6, h * 0.3, '#2f2f3a', o);
+    ctx.fillStyle = '#6a6a7a'; for (let i = 0; i < 7; i++) { const ox = ((i * w / 7 + phase * 3) % w); ctx.beginPath(); ctx.roundRect(hx - w / 2 + ox, hy + h * 0.05, w / 16, h * 0.25, 3); ctx.fill(); }
+    Cartoon.rrect(hx - w * 0.42, hy - h * 0.6, w * 0.84, h * 0.55, 8, '#5b6b3f', o);
+    Cartoon.circle(hx, hy - h * 0.62, w * 0.19, '#4b5a33', o);
+    Cartoon.rrect(hx - w * 0.055, hy - h * 0.62 - W * 0.15, w * 0.11, W * 0.15, 4, '#8a1f2b', o, false);
+    Cartoon.tomato(hx, hy - h * 0.62 - W * 0.16, W * 0.02);
+    drawPerson(hx, hy - h * 0.62 - u * 0.9, u * 0.75, look, phase * 0.3, { squash: 1 });
+    return;
+  }
+  if (weapon.id === 'canon') {
+    const cx = hx + u * 2.4;
+    Cartoon.circle(cx, hy + u * 1.7, u * 0.85, '#6b4423', o);
+    Cartoon.circle(cx, hy + u * 1.7, u * 0.3, '#3d2814', o * 0.7, false);
+    ctx.save(); ctx.translate(cx, hy + u * 0.8); ctx.rotate(-0.35);
+    Cartoon.rrect(-u * 0.75, -u * 2.7, u * 1.5, u * 3.2, u * 0.45, '#3a3a48', o);
+    Cartoon.rrect(-u * 0.85, -u * 2.9, u * 1.7, u * 0.5, u * 0.2, '#4a4a58', o, false);
+    ctx.restore();
+    Cartoon.tomato(cx + u * 0.9, hy - u * 1.7, u * 0.45);
+    drawPerson(hx - u * 0.6, hy, u, look, phase);
+    return;
+  }
+  drawPerson(hx, hy, u, look, phase);
+  if (weapon.id === 'lance_pierre') {
+    const sx = hx + u * 1.5, sy = hy - u * 0.5;
+    Cartoon.limb(sx, sy + u * 0.7, sx, sy - u * 0.4, u * 0.3, '#8a5a2a', o);
+    Cartoon.limb(sx, sy - u * 0.4, sx - u * 0.7, sy - u * 1.4, u * 0.3, '#8a5a2a', o);
+    Cartoon.limb(sx, sy - u * 0.4, sx + u * 0.7, sy - u * 1.4, u * 0.3, '#8a5a2a', o);
+    ctx.strokeStyle = '#e8d8a8'; ctx.lineWidth = u * 0.14; ctx.beginPath(); ctx.moveTo(sx - u * 0.7, sy - u * 1.4); ctx.lineTo(sx, sy - u * 0.5); ctx.lineTo(sx + u * 0.7, sy - u * 1.4); ctx.stroke();
+    Cartoon.tomato(sx, sy - u * 0.5, u * 0.32);
+  } else {
+    const arm = -Math.sin(phase) * 0.8;
+    Cartoon.tomato(hx + u * 0.95 - arm * u * 0.6, hy + u * 0.55, u * 0.36);
+  }
+}
+
+// Particules : éclaboussures de tomate avec coulures, pièces qui brillent.
+function splat(x, y, big) {
+  const n = big ? 26 : 12;
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * 6.28, sp = (big ? 220 : 140) * (0.3 + Math.random());
+    particles.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 60, r: (big ? 9 : 6) * (0.4 + Math.random()), t: 0.6 + Math.random() * 0.4, kind: 'blob' });
+  }
+  for (let i = 0; i < (big ? 8 : 4); i++) particles.push({ x: x + (Math.random() - 0.5) * 20, y, vx: 0, vy: 20 + Math.random() * 40, r: 3 + Math.random() * 3, t: 0.9, kind: 'drip' });
+  pops.push({ x, y: y - 20, text: big ? 'SPLATCH !' : ['SPLAT', 'PAF', 'SPLOTCH', 'TCHAC'][Math.floor(Math.random() * 4)], t: 0.6, size: big ? 44 : 26, color: big ? '#FFD166' : '#fff' });
+}
+function updateFx(dt) {
+  for (const p of particles) { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 500 * dt; p.vx *= 0.94; }
+  particles = particles.filter(p => p.t > 0);
+  for (const p of pops) { p.t -= dt; p.y -= 30 * dt; }
+  pops = pops.filter(p => p.t > 0);
+  shake = Math.max(0, shake - dt * 30);
+}
+
+function draw(eng) {
+  const s = eng.s, W = cv.width, H = cv.height, px = x => x * W, py = y => H - y * H;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, W, H);
+  if (shake > 0) ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+  // Décor : rue en parallaxe, trottoirs, bande centrale.
+  ctx.fillStyle = '#33304f'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#26233d'; ctx.fillRect(W * 0.06, 0, W * 0.88, H);
+  ctx.fillStyle = '#4a4668'; ctx.fillRect(W * 0.06, 0, 6, H); ctx.fillRect(W * 0.94 - 6, 0, 6, H);
+  ctx.strokeStyle = '#8a86a8'; ctx.lineWidth = 4; ctx.setLineDash([26, 26]); ctx.lineDashOffset = -(s.elapsed * 160) % 52;
+  ctx.beginPath(); ctx.moveTo(W / 2, 0); ctx.lineTo(W / 2, H); ctx.stroke(); ctx.setLineDash([]);
+  // Lampadaires qui défilent sur les trottoirs.
+  for (let i = 0; i < 4; i++) { const yy = ((i * 0.3 + s.elapsed * C.SCROLL * 0.5) % 1.2) - 0.1; for (const sx of [W * 0.03, W * 0.97]) { Cartoon.limb(sx, py(yy), sx, py(yy) + 26, 4, '#5a567a', 1.5); Cartoon.circle(sx, py(yy) - 4, 5, '#FFD166', 1.5, false); } }
+  if (s.flash > 0) { ctx.fillStyle = `rgba(255,255,255,${s.flash})`; ctx.fillRect(-20, -20, W + 40, H + 40); s.flash -= 1 / 60; }
+  // Portes : panneaux BD avec ombre portée.
+  for (const gt of s.gates) {
+    if (gt.consumed) continue;
+    const x0 = gt.side === 0 ? W * 0.08 : W / 2 + 8, w = W / 2 - W * 0.08 - 8, top = py(gt.y + 0.03), h = H * 0.065;
+    const col = gt.op.good ? '#2A9D8F' : '#E63946';
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.roundRect(x0 + 5, top + 6, w, h, 10); ctx.fill();
+    Cartoon.rrect(x0, top, w, h, 10, col, 3, false);
+    ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.roundRect(x0 + 4, top + 4, w - 8, h * 0.4, 8); ctx.fill();
+    Cartoon.text(gt.op.label, x0 + w / 2, top + h / 2, 40, '#fff', 3);
+  }
+  // Bonus : capsule violette étoilée.
+  for (const bo of s.bonuses) {
+    const bx = px(bo.x), by = py(bo.y), r = W * 0.04, pulse = 1 + Math.sin(s.elapsed * 8) * 0.08;
+    Cartoon.shape(() => { for (let i = 0; i < 10; i++) { const a = i * Math.PI / 5 - Math.PI / 2, rr = i % 2 ? r * 0.55 : r * pulse; ctx.lineTo(bx + Math.cos(a) * rr, by + Math.sin(a) * rr); } ctx.closePath(); }, '#9B5DE5', 3, {});
+    Cartoon.text(BONUS[bo.type].label, bx, by - r * 1.6, 15, '#fff', 2, 'Nunito, sans-serif');
+  }
+  // Pièces.
+  for (const c of s.coinsOnTrack) { const cx = px(c.x), cy = py(c.y), r = W * 0.016 * (0.85 + 0.15 * Math.sin(s.elapsed * 10 + c.id)); Cartoon.circle(cx, cy, r, '#FFD166', 2); }
+  // Cibles.
+  const frozen = eng.has('SCANDALE') || (s.hero.special === 'GADGET' && s.specialActive > 0);
+  const t = s.elapsed;
+  const sorted = [...s.enemies].sort((a, b) => b.y - a.y);
+  for (const e of sorted) {
+    const scale = e.type.boss ? 2.1 : (e.type.tier === 3 ? 1.25 : e.type.tier === 2 ? 1.1 : 1);
+    const x = px(e.x), y = py(e.y), u = W * 0.026 * scale;
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(x, y + u * 2.3, u * 1.6, u * 0.45, 0, 0, 7); ctx.fill();
+    drawPerson(x, y, u, e.type.look, frozen ? 0 : t * 9 + (e.phase || 0), { frozen, hurt: e.hurt > 0, angry: true, tilt: e.hurt > 0 ? 0.15 : 0, squash: e.hurt > 0 ? 0.85 : undefined });
+    const r = u * 1.6;
+    const by = y - u * 4.0;
+    Cartoon.rrect(x - r, by, 2 * r, 8, 4, '#3a3a5a', 1.5, false);
+    ctx.fillStyle = '#E63946'; ctx.beginPath(); ctx.roundRect(x - r, by, 2 * r * Math.max(0, e.hp / e.maxHp), 8, 4); ctx.fill();
+    Cartoon.text(e.type.name, x, by - 10, e.type.boss ? 16 : 12, '#fff', 2, '800 Nunito, sans-serif');
+    if (e.type.boss) Cartoon.text(e.type.tierLabel.toUpperCase(), x, by - 26, 13, '#F4A261', 2, '800 Nunito, sans-serif');
+  }
+  // Projectiles.
+  for (const p of s.projectiles) Cartoon.tomato(px(p.x), py(p.y), W * 0.013 * (p.piercing ? 1.5 : 1), 1.5);
+  // Particules.
+  for (const p of particles) {
+    ctx.globalAlpha = Math.min(1, p.t * 2);
+    if (p.kind === 'blob') { Cartoon.circle(p.x, p.y, p.r, '#E63946', 1.5, false); }
+    else { ctx.fillStyle = '#c62b38'; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.r * 0.6, p.r * 1.6, 0, 0, 7); ctx.fill(); }
+  }
+  ctx.globalAlpha = 1;
+  // Onde de choc.
+  if (s.shock > 0) { ctx.strokeStyle = INK; ctx.lineWidth = 10; ctx.beginPath(); ctx.arc(px(s.heroX), py(C.HERO_Y), W * C.UPPERCUT_R * (1 - s.shock / 0.3), 0, 7); ctx.stroke(); ctx.strokeStyle = '#F4A261'; ctx.lineWidth = 6; ctx.stroke(); s.shock -= 1 / 60; }
+  // Héros.
+  const hx = px(s.heroX), hy = py(C.HERO_Y), running = input_targetX != null;
+  const weapon = weaponFor(s.firepower);
+  ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(hx, hy + W * 0.075, W * 0.06, W * 0.016, 0, 0, 7); ctx.fill();
+  drawWeaponAndHero(hx, hy, W, s, weapon, running ? t * 11 : t * 2.5);
+  // Compteur de puissance et arme, en bas à gauche pour ne jamais être masqués.
+  Cartoon.text('x' + s.firepower, W * 0.13, H - 44, 40, '#fff', 3);
+  Cartoon.text(weapon.label.toUpperCase(), W * 0.13, H - 16, 12, '#F4A261', 2, '800 Nunito, sans-serif');
+  // Onomatopées.
+  for (const p of pops) { ctx.globalAlpha = Math.min(1, p.t * 3); Cartoon.text(p.text, p.x, p.y, p.size * (1 + (0.6 - p.t) * 0.3), p.color, 4); }
+  ctx.globalAlpha = 1;
+}
+
+// ---------- Boucle et UI ----------
+const $ = id => document.getElementById(id);
+const phone = $('phone'), home = $('home'), over = $('over'), hud = $('hud'), specialBtn = $('special'), toast = $('toast');
+let lastFp = 1, selected = HEROES[0], eng = null, targetX = null, specialReq = false, raf = 0, toastTimer = 0;
+
+function renderHeroes() {
+  $('heroList').innerHTML = '';
+  for (const h of HEROES) {
+    const b = document.createElement('button'); b.className = 'hero' + (h === selected ? ' selected' : ''); b.id = 'hero-' + h.id;
+    b.innerHTML = `<b>${h.name}</b><small>${h.tag}</small><em>Cadence ${h.fireRate}/s · Dégâts ${h.damage} · ${SPECIAL_LABEL[h.special]}</em>`;
+    b.onclick = () => { selected = h; renderHeroes(); };
+    $('heroList').appendChild(b);
+  }
+}
+function showToast(text, color) { toast.textContent = text; toast.style.color = color; toast.classList.add('show'); toastTimer = 0.7; }
+function start() {
+  eng = new Engine(selected, Date.now() & 0xffffffff); lastFp = 1; particles = []; pops = []; shake = 0;
+  home.hidden = true; over.hidden = true; hud.hidden = false; specialBtn.hidden = false;
+  let last = performance.now(), acc = 0; const step = 1 / 60;
+  cancelAnimationFrame(raf);
+  const loop = now => {
+    acc += Math.min(0.1, (now - last) / 1000); last = now;
+    while (acc >= step) {
+      const ev = eng.step(step, { targetX, useSpecial: specialReq }); specialReq = false; acc -= step;
+      updateFx(step);
+      for (const e of ev) {
+        if (e.t === 'kill') { const sc = cv.getBoundingClientRect(); splat(e.x * cv.width, cv.height - e.y * cv.height, !!e.type.boss); if (e.type.boss) shake = 18; }
+        else if (e.t === 'gate') { const wBefore = weaponFor(lastFp), wAfter = weaponFor(e.fp); lastFp = e.fp;
+          showToast(wAfter !== wBefore ? wAfter.label.toUpperCase() + ' !' : `${e.op.label}  →  x${e.fp}`, e.op.good ? '#2A9D8F' : '#E63946'); }
+        else if (e.t === 'special' && e.special === 'LIVRAISON') { lastFp = eng.s.firepower; showToast(weaponFor(lastFp).label.toUpperCase() + ' !', '#F4A261'); }
+        else if (e.t === 'bonus') showToast(BONUS[e.type].label.toUpperCase(), '#9B5DE5');
+        else if (e.t === 'wave') showToast(`VAGUE ${e.wave}` + (e.wave % C.BOSS_EVERY === 0 ? ' · BOSS' : ''), '#F4A261');
+        else if (e.t === 'hurt') { shake = 14; phone.style.boxShadow = '0 0 0 6px #E63946'; setTimeout(() => phone.style.boxShadow = '', 150); }
+      }
+    }
+    if (toastTimer > 0) { toastTimer -= step; if (toastTimer <= 0) toast.classList.remove('show'); }
+    input_targetX = targetX; draw(eng); updateHud();
+    if (eng.s.status === 'RUNNING') raf = requestAnimationFrame(loop); else endGame();
+  };
+  raf = requestAnimationFrame(loop);
+}
+function updateHud() {
+  const s = eng.s;
+  $('hWave').textContent = 'Vague ' + s.wave; $('hScore').textContent = s.score; $('hCoins').textContent = '🪙 ' + s.coins;
+  $('hLives').textContent = '❤'.repeat(s.heroHp); $('hCombo').textContent = s.combo >= 3 ? 'COMBO x' + s.combo : '';
+  $('hEffects').textContent = Object.entries(s.effects).map(([k, v]) => `${BONUS[k].label} ${Math.ceil(v)}s`).join('   ');
+  specialBtn.disabled = !eng.specialReady;
+  specialBtn.textContent = eng.specialReady ? 'SPÉCIAL' : Math.ceil(s.specialCd) + 's';
+}
+function endGame() {
+  const s = eng.s;
+  hud.hidden = true; specialBtn.hidden = true; over.hidden = false;
+  $('oScore').textContent = s.score; $('oWave').textContent = s.wave; $('oCoins').textContent = s.coins; $('oCombo').textContent = s.bestCombo;
+  $('overMsg').textContent = `${s.hero.name} a tenu ${Math.round(s.elapsed)} secondes. Les pièces iraient dans la boutique.`;
+}
+const relX = ev => { const r = cv.getBoundingClientRect(); return (ev.clientX - r.left) / r.width; };
+phone.addEventListener('pointerdown', ev => { if (ev.target.closest('button, .overlay')) return; targetX = relX(ev); phone.setPointerCapture(ev.pointerId); });
+phone.addEventListener('pointermove', ev => { if (targetX != null) targetX = relX(ev); });
+const release = () => { targetX = null; };
+phone.addEventListener('pointerup', release); phone.addEventListener('pointercancel', release);
+specialBtn.addEventListener('click', () => { specialReq = true; });
+document.addEventListener('keydown', ev => { if (ev.key === ' ') { specialReq = true; ev.preventDefault(); } if (ev.key === 'ArrowLeft') targetX = 0; if (ev.key === 'ArrowRight') targetX = 1; });
+document.addEventListener('keyup', ev => { if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') targetX = null; });
+$('play').onclick = start; $('retry').onclick = start;
+$('menu').onclick = () => { over.hidden = true; home.hidden = false; };
+renderHeroes();
+// Écran au repos : une scène figée avec quelques cibles derrière le menu.
+(function idle() { const demo = new Engine(HEROES[0], 7); for (let i = 0; i < 300; i++) demo.step(1 / 60, { targetX: 0.5 }); draw(demo); })();
+</script>

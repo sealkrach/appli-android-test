@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PolitiRush</string>
+    <string name="play">JOUER</string>
+    <string name="shop">Boutique</string>
+    <string name="choose_hero">Choisis ton héros</string>
+    <string name="game_over">Fin de partie</string>
+    <string name="retry">Encore une !</string>
+    <string name="special">SPÉCIAL</string>
+</resources>

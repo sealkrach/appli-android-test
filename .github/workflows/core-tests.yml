@@ -1,0 +1,30 @@
+name: core-tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  kotlin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+      # Sans SDK Android le module :app est ignoré par settings.gradle.kts.
+      - run: gradle :core:test --no-daemon
+
+  csharp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      # Compile le moteur C# du projet Unity et exécute ses tests sans Unity.
+      - run: dotnet run --project tools/CoreCheck
